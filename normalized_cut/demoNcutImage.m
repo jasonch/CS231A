@@ -8,7 +8,7 @@ function demoNcutImage;
 disp('Ncut Image Segmentation demo');
 
 %% read image, change color image to brightness image, resize to 160x160
-I = imread_ncut('jpg_images/teapot.jpg',1024,768);
+I = imread_ncut('jpg_images/teapot.jpg',240,180);
 
 %% display the image
 figure(1);clf; imagesc(I);colormap(gray);axis off;
@@ -17,7 +17,7 @@ pause;
 
 %% compute the edges imageEdges, the similarity matrix W based on
 %% Intervening Contours, the Ncut eigenvectors and discrete segmentation
-nbSegments = 3;
+nbSegments = 2;
 disp('computing Ncut eigenvectors ...');
 tic;
 [SegLabel,NcutDiscrete,NcutEigenvectors,NcutEigenvalues,W,imageEdges]= NcutImage(I,nbSegments);
