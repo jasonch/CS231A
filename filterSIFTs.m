@@ -1,7 +1,4 @@
-function filteredSift = filterSIFTs(allSIFTs)
-
-  % should've been loaded somewhere, probably
-  synset = 'n04398044';
+function filteredSift = filterSIFTs(synset, allSIFTs)
 
   filteredSift = allSIFTs;
   siftImageIDs = IDstructToVector(filteredSift, synset);
@@ -15,7 +12,7 @@ function filteredSift = filterSIFTs(allSIFTs)
     allSiftIndicesWeCareAbout(i) = siftIndex;
 
     % segLabels = %
-      load(['segLabels/' num2str(cleanImageIDs(i)) '_segmented.mat']);
+      load(['segLabels/' synset '_' num2str(cleanImageIDs(i)) '_segmented.mat']);
     
     % convert to pixel locations on segLabels
     width = size(segLabels,2);
