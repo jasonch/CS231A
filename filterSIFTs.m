@@ -9,10 +9,10 @@ function filteredSift = filterSIFTs(allSIFTs)
   % cleamImageIDs = %
     load('cleanImages.mat'); 
  
-  allSiftIndicesWeCareAbout = []; 
+  allSiftIndicesWeCareAbout = zeros(size(cleanImageIDs, 1),1); 
   for i = 1:size(cleanImageIDs,1)
     siftIndex = find(siftImageIDs == cleanImageIDs(i));
-    allSiftIndicesWeCareAbout = [allSiftIndicesWeCareAbout; siftIndex];
+    allSiftIndicesWeCareAbout(i) = siftIndex;
 
     % segLabels = %
       load(['segLabels/' num2str(cleanImageIDs(i)) '_segmented.mat']);
