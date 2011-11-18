@@ -18,6 +18,7 @@ figure;clf
 bw = edge(SegLabel,0.01);
 J1=showmask(I,imdilate(bw,ones(2,2))); imagesc(J1);axis off
 saveas(gcf, strcat(seg_label_dir_path, segmented_image_filename), 'jpg');
+close all
 
 SegLabel = SegLabel - 1;
 save(strcat(seg_label_dir_path, segmented_image_filename), 'SegLabel');

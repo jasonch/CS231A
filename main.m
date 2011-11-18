@@ -1,8 +1,8 @@
 % this file descirbes a detector using BoW histograms with SIFT features....
-  K = 500;
+  K = 2;
   teapotWnid = 'n04398044';
   chairWnid  = 'n03376595';
-
+   %%
   % image_vldsift = %
    load([teapotWnid '.vldsift.mat']);
 
@@ -15,9 +15,12 @@
   %%
   % filter to only images we want and only features in the segment
   disp('Filtering unwanted sift features...');
-  filteredSifts = filterSIFTs(image_vldsift);
+  filteredSifts = filterSIFTs(teapotWnid, image_vldsift, false);
   
+  %%
   % compute vocabulary set
+  disp(size(filteredSifts, 1));
+  disp(size(filteredSifts, 2)); 
   disp('Compute vocab set');
   vocab = computeVocabularySet(filteredSifts, K);
   histograms = sparse(computeHistograms(filteredSifts, vocab));

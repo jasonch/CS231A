@@ -4,7 +4,7 @@ function filteredSift = filterSIFTs(synset, allSIFTs, shouldFilterSegment)
   siftImageIDs = IDstructToVector(filteredSift, synset);
 
   % cleamImageIDs = %
-    load('cleanImages.mat'); 
+    load('cleanImages-small.mat'); 
  
   allSiftIndicesWeCareAbout = zeros(size(cleanImageIDs, 1),1); 
   for i = 1:size(cleanImageIDs,1)

@@ -1,7 +1,7 @@
 
-function segmentSynSet(image_dir_path, seg_label_dir_path, synset_id);
+function segmentSynSet(image_dir_path, seg_label_dir_path, synset_id)
 
-load('cleanImages.mat');
+load('cleanImages-small.mat');
 
 files = dir(image_dir_path);
 
