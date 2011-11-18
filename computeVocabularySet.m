@@ -11,7 +11,7 @@ end
 
 function siftMatrix = convertSIFT2Matrix(siftsObj)
   siftMatrix = [];
-  for i=1:size(siftObj,1)
-    siftMatrix = [siftMatrix; siftObj(i).vldsift.desc'];
+  for i=1:size(siftsObj,1)
+    siftMatrix = [siftMatrix; siftsObj(i).vldsift.desc'];
   end
 end
