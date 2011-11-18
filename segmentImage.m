@@ -14,6 +14,12 @@ disp('computing Ncut eigenvectors ...');
 [filename file_ext] = strtok(image_filename, '.');
 segmented_image_filename = strcat(filename, '_segmented');
 
+figure(3);clf
+bw = edge(SegLabel,0.01);
+J1=showmask(I,imdilate(bw,ones(2,2))); imagesc(J1);axis off
+saveas(gcf, segmented_image_filename, 'jpg');
+close figure(3)
+
 SegLabel = SegLabel - 1;
 save(strcat(seg_label_dir_path, segmented_image_filename), 'SegLabel');
 
