@@ -20,6 +20,8 @@ for i=1:hist_len
     bow_histogram(min_idx) = bow_histogram(min_idx) + 1; 
 end
 
+bow_histogram = bow_histogram / sum(bow_histogram);
+
 end
 
 
