@@ -4,8 +4,14 @@
 
 function vocabulary = computeVocabularySet(sifts,k)
   siftMatrix = convertSIFT2Matrix(sifts);
-  [~, vocabulary] = kmeans(siftMatrix, k);
+  % print out size of sift matrix
+  size(siftMatrix)
+
+  [~, vocabulary] = kmeans(siftMatrix, k, 'emptyaction', 'drop');
+
   vocabulary = vocabulary';
+  % remove dropped clusters
+  vocabulary = vocabulary(isnan(vocabulary(:,1)));
 end
 
 
