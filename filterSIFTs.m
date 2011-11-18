@@ -1,7 +1,4 @@
-function filteredSift = filterSIFTs(allSIFTs)
-
-  % should've been loaded somewhere, probably
-  synset = 'n04398044';
+function filteredSift = filterSIFTs(synset, allSIFTs)
 
   filteredSift = allSIFTs;
   siftImageIDs = IDstructToVector(filteredSift, synset);
@@ -9,20 +6,21 @@ function filteredSift = filterSIFTs(allSIFTs)
   % cleamImageIDs = %
     load('cleanImages.mat'); 
  
-  allSiftIndicesWeCareAbout = []; 
+  allSiftIndicesWeCareAbout = zeros(size(cleanImageIDs, 1),1); 
   for i = 1:size(cleanImageIDs,1)
     siftIndex = find(siftImageIDs == cleanImageIDs(i));
-    allSiftIndicesWeCareAbout = [allSiftIndicesWeCareAbout; siftIndex];
+    allSiftIndicesWeCareAbout(i) = siftIndex;
 
     % segLabels = %
-      load(['segLabels/' num2str(cleanImageIDs(i)) '_segmented.mat']);
+      load(['segLabels/' synset '_' num2str(cleanImageIDs(i)) '_segmented.mat']);
+      foregroundIndex = getForegroundIndex(segLabels);
     
     % convert to pixel locations on segLabels
     width = size(segLabels,2);
     height = size(segLabels,1);
     locations = [round(filteredSift(siftIndex).x * width); round(filteredSift(siftIndex).y*height)]';
     for j = 1:size(locations,1)
-      if (segLabels(locations(j, 1), locations(j, 2)) == 0)
+      if (segLabels(locations(j, 1), locations(j, 2)) ~= foregroundIndex)
         % if seglabel is 0, remove the element from sift feature set
         filteredSift(siftIndex).vldsift.x(j) = [];
         filteredSift(siftIndex).vldsift.y(j) = [];
