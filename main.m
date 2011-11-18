@@ -24,16 +24,17 @@
   disp('Compute vocab set');
   vocab = computeVocabularySet(filteredSifts, K);
   histograms = sparse(computeHistograms(filteredSifts, vocab));
-  posLabels = ones(size(histogram,2), 1);
+  posLabels = ones(size(histograms,2), 1);
 
   %%
   % compute histogram for negative examples
   % image_vldsift = %
-    load([chairWnid  '.mat']);
-  chairSifts = image_vldsift(rand(1000,1)*size(chairSifts,1) + 1);
+    load([chairWnid  '.vldsift.mat']);
+  chairSifts = image_vldsift(floor(rand(1000,1).*size(image_vldsift,1)) + 1);
   chairHistograms = sparse(computeHistograms(chairSifts, vocab));
-  negLabels = zeros(size(1000,1));
+%%
+  negLabels = zeros(1000,1);
 
   % plug into liblinear - train
   addpath('liblinear-1.8\liblinear-1.8\matlab\');
-  model = train([posLabels; negLabels] , [histograms chairHistograms], '-v 3'); 
+  model = train([posLabels; negLabels] , [histograms chairHistograms]', '-v 3'); 
