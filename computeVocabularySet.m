@@ -4,7 +4,7 @@
 
 function vocabulary = computeVocabularySet(sifts,k)
   siftMatrix = convertSIFT2Matrix(sifts);
-  [IDX, vocabulary] = kmeans(siftMatrix, k);
+  [~, vocabulary] = kmeans(siftMatrix, k);
   vocabulary = vocabulary';
 end
 
