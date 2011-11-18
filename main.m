@@ -4,21 +4,27 @@
   chairWnid  = 'n03376595';
 
   % image_vldsift = %
-   load([teapotWnid '.mat']);
+   load([teapotWnid '.vldsift.mat']);
 
+   %%
   % segment images
-  segmentSynset('images/', 'segLabels/');
+  addpath('normalized_cut\');
+  disp('Segmenting images...');
+  segmentSynSet('images/', 'segLabels/', teapotWnid);
  
+  %%
   % filter to only images we want and only features in the segment
+  disp('Filtering unwanted sift features...');
   filteredSifts = filterSIFTs(image_vldsift);
   
   % compute vocabulary set
+  disp('Compute vocab set');
   vocab = computeVocabularySet(filteredSifts, K);
   histograms = sparse(computeHistograms(filteredSifts, vocab));
   posLabels = ones(size(histogram,2), 1);
 
+  %%
   % compute histogram for negative examples
-
   % image_vldsift = %
     load([chairWnid  '.mat']);
   chairSifts = image_vldsift(rand(1000,1)*size(chairSifts,1) + 1);
