@@ -15,7 +15,7 @@ function filteredSift = filterSIFTs(allSIFTs)
     allSiftIndicesWeCareAbout = [allSiftIndicesWeCareAbout; siftIndex];
 
     % segLabels = %
-      load([num2str(cleanImageIDs(i)) '_segment.mat']);
+      load(['segLabels/' num2str(cleanImageIDs(i)) '_segmented.mat']);
     
     % convert to pixel locations on segLabels
     width = size(segLabels,2);
