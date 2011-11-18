@@ -1,16 +1,18 @@
-function filteredSift = filterSIFTs()
+function filteredSift = filterSIFTs(allSIFTs)
 
+  % should've been loaded somewhere, probably
   synset = 'n04398044';
 
-  filteredSift = load([ synset '.vldsift.mat' ]);
-  filteredSift = filteredSift.image_vldsift;
+  filteredSift = allSIFTs;
   siftImageIDs = IDstructToVector(filteredSift, synset);
 
   % cleamImageIDs = %
     load('cleanImages.mat'); 
-
+ 
+  allSiftIndicesWeCareAbout = []; 
   for i = 1:size(cleanImageIDs,1)
     siftIndex = find(siftImageIDs == cleanImageIDs(i));
+    allSiftIndicesWeCareAbout = [allSiftIndicesWeCareAbout; siftIndex];
 
     % segLabels = %
       load([num2str(cleanImageIDs(i)) '_segment.mat']);
@@ -31,7 +33,8 @@ function filteredSift = filterSIFTs()
     end
   end
 
-  save('filteredSift.mat', filteredSift);
+  filteredSift = filteredSift(allSiftIndicesWeCareAbout);
+  save('filteredSift.mat', 'filteredSift');
 
 end
 
