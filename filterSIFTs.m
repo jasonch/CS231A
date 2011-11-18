@@ -13,13 +13,14 @@ function filteredSift = filterSIFTs(synset, allSIFTs)
 
     % segLabels = %
       load(['segLabels/' synset '_' num2str(cleanImageIDs(i)) '_segmented.mat']);
+      foregroundIndex = getForegroundIndex(segLabels);
     
     % convert to pixel locations on segLabels
     width = size(segLabels,2);
     height = size(segLabels,1);
     locations = [round(filteredSift(siftIndex).x * width); round(filteredSift(siftIndex).y*height)]';
     for j = 1:size(locations,1)
-      if (segLabels(locations(j, 1), locations(j, 2)) == 0)
+      if (segLabels(locations(j, 1), locations(j, 2)) ~= foregroundIndex)
         % if seglabel is 0, remove the element from sift feature set
         filteredSift(siftIndex).vldsift.x(j) = [];
         filteredSift(siftIndex).vldsift.y(j) = [];
