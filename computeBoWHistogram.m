@@ -8,7 +8,7 @@ bow_histogram = zeros(1, hist_len);
 sift_comp_dists = zeros(1, hist_len);
 
 for i=1:hist_len
-    sift_desc = sift_descriptors(i,:);
+    sift_desc = sift_descriptors(:,i)';
     
     for j=1:hist_len
         word_mean = bow_dictionary(j,:);

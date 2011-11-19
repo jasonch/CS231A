@@ -18,11 +18,15 @@
   filteredSifts = filterSIFTs(teapotWnid, image_vldsift, false);
   
   %%
+  disp('Filtering noisy image sift features...');
+  noisyImageSift = filterNoisySift(teapotWnid, image_vldsift);
+  
+  %%
   % compute vocabulary set
   disp(size(filteredSifts, 1));
   disp(size(filteredSifts, 2)); 
   disp('Compute vocab set');
-  vocab = computeVocabularySet(filteredSifts, 0.75, true);
+  vocab = computeVocabularySet(filteredSifts, 0.70, true);
   % vocab = computeVocabularySet(filteredSifts, K, false);
   
   %%
@@ -39,6 +43,20 @@
 %%
   negLabels = zeros(1000,1);
 
+  %randomly permute training data:
+  [training_data, training_labels] = randomizeTrainingData([histograms chairHistograms], [posLabels; negLabels]);
+  
   % plug into liblinear - train
   addpath('liblinear-1.8\liblinear-1.8\matlab\');
-  model = train([posLabels; negLabels] , [histograms chairHistograms]', '-v 3'); 
+  model = train(training_labels , training_data', '-v 10'); 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
