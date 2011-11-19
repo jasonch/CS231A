@@ -7,7 +7,7 @@ function bow_histogram = computeBoWHistogram( sift_descriptors, bow_dictionary )
 bow_histogram = zeros(1, hist_len);
 sift_comp_dists = zeros(1, hist_len);
 
-for i=1:hist_len
+for i=1:size(sift_comp_dists,1)
     sift_desc = sift_descriptors(:,i)';
     
     for j=1:hist_len

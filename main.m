@@ -19,7 +19,7 @@
   
   %%
   disp('Filtering noisy image sift features...');
-  noisyImageSift = filterNoisySift(teapotWnid, image_vldsift);
+  noisyImageSifts = filterNoisySift(teapotWnid, image_vldsift);
   
   %%
   % compute vocabulary set
@@ -31,28 +31,40 @@
   
   %%
   disp('Compute histograms of sifts');
-  histograms = sparse(computeHistograms(filteredSifts, vocab));
-  posLabels = ones(size(histograms,2), 1);
+  trainHistograms = sparse(computeHistograms(filteredSifts, vocab));
+  trainPosLabels = ones(size(trainHistograms,2), 1);
+  
+  testHistograms = sparse(computeHistograms(noisyImageSifts, vocab));
+  testPosLabels = ones(size(testHistograms,2), 1);
 
   %%
   % compute histogram for negative examples
   % image_vldsift = %
-    load([chairWnid  '.vldsift.mat']);
+  load([chairWnid  '.vldsift.mat']);
   chairSifts = image_vldsift(floor(rand(1000,1).*size(image_vldsift,1)) + 1);
   chairHistograms = sparse(computeHistograms(chairSifts, vocab));
-%%
-  negLabels = zeros(1000,1);
 
+  trainChairHists = chairHistograms(:,1:138);
+  trainNegLabels = zeros(138, 1);  
+  testChairHists = chairHistograms(:,139:1000);
+  testNegLabels = zeros(862, 1);
+%%
   %randomly permute training data:
-  [training_data, training_labels] = randomizeTrainingData([histograms chairHistograms], [posLabels; negLabels]);
+  [training_data, training_labels] = randomizeTrainingData([trainHistograms trainChairHists], [trainPosLabels; trainNegLabels]);
   
   % plug into liblinear - train
   addpath('liblinear-1.8\liblinear-1.8\matlab\');
-  model = train(training_labels , training_data', '-v 10'); 
-  
-  
-  
-  
+  size(training_labels)
+  size(training_data)
+  model = train(training_labels , training_data'); 
+  %%
+  %randomly permute test data:
+  [test_data, test_labels] = randomizeTrainingData([testHistograms testChairHists], [testPosLabels; testNegLabels]);
+  %%
+  size(test_labels)
+  size(test_data)
+  [predicted_label, accuracy, decision_vals] = predict(test_labels, test_data', model);
+  accuracy
   
   
   

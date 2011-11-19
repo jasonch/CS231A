@@ -35,3 +35,4 @@ function ids =  IDstructToVector(sift, synset)
     ids(i) = str2double(strrep(sift(i).ID, [synset '_'], ''));
   end
 end
+
