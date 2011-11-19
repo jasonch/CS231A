@@ -1,5 +1,5 @@
 % this file descirbes a detector using BoW histograms with SIFT features....
-  K = 500;
+  K = 300;
   teapotWnid = 'n04398044';
   chairWnid  = 'n03376595';
    %%
@@ -23,6 +23,10 @@
   disp(size(filteredSifts, 2)); 
   disp('Compute vocab set');
   vocab = computeVocabularySet(filteredSifts, 0.75, true);
+  % vocab = computeVocabularySet(filteredSifts, K, false);
+  
+  %%
+  disp('Compute histograms of sifts');
   histograms = sparse(computeHistograms(filteredSifts, vocab));
   posLabels = ones(size(histograms,2), 1);
 
