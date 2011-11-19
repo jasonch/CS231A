@@ -2,19 +2,30 @@
 % and uses K-means to compute K-clusters on the matrix
 % returns the centroids of each cluster in the Kx128 result
 
-function vocabulary = computeVocabularySet(sifts,k)
+% Note parameter k is the number of clusters if using kmeans, but is the
+% bandwidth if using meanshift
+
+function vocabulary = computeVocabularySet(sifts,k, useMeanshift)
   siftMatrix = convertSIFT2Matrix(sifts);
   % print out size of sift matrix
   size(siftMatrix)
 
-  [~, vocabulary] = kmeans(siftMatrix, k, 'emptyaction', 'drop');
+  if (useMeanshift)
+      [vocabulary, ~, ~] = MeanShiftCluster(siftMatrix', k, false);
+      vocabulary = vocabulary';
+  else
+      [~, vocabulary] = kmeans(siftMatrix, k, 'emptyaction', 'drop');
+      % remove dropped clusters
+      vocabulary = vocabulary(~isnan(vocabulary(:,1)));
+  end
+  
+  % print out size of vocabulary
   size(vocabulary)
-  %vocabulary = vocabulary';
-  % remove dropped clusters
-  vocabulary = vocabulary(~isnan(vocabulary(:,1)));
+  
 end
 
-
+% convert sift in object for to a Nx128 matrix, where N is the total
+% number of SIFT features in all images
 function siftMatrix = convertSIFT2Matrix(siftsObj)
   siftMatrix = [];
   for i=1:size(siftsObj,1)
