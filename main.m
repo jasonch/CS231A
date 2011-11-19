@@ -54,15 +54,10 @@
   
   % plug into liblinear - train
   addpath('liblinear-1.8\liblinear-1.8\matlab\');
-  size(training_labels)
-  size(training_data)
   model = train(training_labels , training_data'); 
   %%
   %randomly permute test data:
   [test_data, test_labels] = randomizeTrainingData([testHistograms testChairHists], [testPosLabels; testNegLabels]);
-  %%
-  size(test_labels)
-  size(test_data)
   [predicted_label, accuracy, decision_vals] = predict(test_labels, test_data', model);
   accuracy
   
