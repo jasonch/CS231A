@@ -15,8 +15,9 @@
   
   %%
   % filter to only images we want and only features in the segment
+  % and discard bottom 30% of the features by norm magnitude
   disp('Filtering unwanted sift features...');
-  filteredSifts = filterSIFTs(teapotWnid, image_vldsift, false);
+  filteredSifts = filterSIFTs(teapotWnid, image_vldsift, 0.3, false);
   
   
   %%

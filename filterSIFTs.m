@@ -1,7 +1,7 @@
-function filteredSift = filterSIFTs(synset, allSIFTs, shouldFilterSegment)
+function filtered_sift = filterSIFTs(synset, allSIFTs, normThresh, shouldFilterSegment)
 
-  filteredSift = allSIFTs;
-  siftImageIDs = IDstructToVector(filteredSift, synset);
+  filtered_sift = allSIFTs;
+  siftImageIDs = IDstructToVector(filtered_sift, synset);
 
   % cleamImageIDs = %
     load('cleanImages.mat'); 
@@ -11,29 +11,42 @@ function filteredSift = filterSIFTs(synset, allSIFTs, shouldFilterSegment)
     siftIndex = find(siftImageIDs == cleanImageIDs(i));
     allSiftIndicesWeCareAbout(i) = siftIndex;
 
+    % filter out features with low norm
+    threshold = max(filtered_sift(siftIndex).vldsift.norm) * normThresh;
+    normFilter = (filtered_sift(siftIndex).vldsift.norm > threshold);
+    filtered_sift(siftIndex).vldsift.x = filtered_sift(siftIndex).vldsift.x(normFilter);
+    filtered_sift(siftIndex).vldsift.y = filtered_sift(siftIndex).vldsift.y(normFilter);
+    filtered_sift(siftIndex).vldsift.scale = filtered_sift(siftIndex).vldsift.scale(normFilter);
+    filtered_sift(siftIndex).vldsift.norm = filtered_sift(siftIndex).vldsift.norm(normFilter);
+    filtered_sift(siftIndex).vldsift.desc = filtered_sift(siftIndex).vldsift.desc(normFilter);
+
+    % filter out features with low norm
     if (shouldFilterSegment)
       % segLabels = %
         load(['segLabels/' synset '_' num2str(cleanImageIDs(i)) '_segmented.mat']);
-        foregroundIndex = getForegroundIndex(segLabels);
-    
+  
+
       % convert to pixel locations on segLabels
       width = size(segLabels,2);
       height = size(segLabels,1);
-      locations = [round(filteredSift(siftIndex).x * width); round(filteredSift(siftIndex).y*height)]';
-      for j = 1:size(locations,1)
-        if (segLabels(locations(j, 1), locations(j, 2)) ~= foregroundIndex)
-          % if seglabel is 0, remove the element from sift feature set
-          filteredSift(siftIndex).vldsift.x(j) = [];
-          filteredSift(siftIndex).vldsift.y(j) = [];
-          filteredSift(siftIndex).vldsift.scale(j) = [];
-          filteredSift(siftIndex).vldsift.norm(j) = [];
-          filteredSift(siftIndex).vldsift.desc(j) = [];
-        end
-      end
-    end % end if (shouldFilterSegment)
+      foregroundIndex = getForegroundIndex(segLabels);
+      locations = [round(filtered_sift(siftIndex).x * width); round(filtered_sift(siftIndex).y*height)]';
+
+      % find where seLabels is the foreground
+      [rowInd, colInd, ~] = find(segLabels == foregroundIndex);
+      % use the indices to contruct a filter that removes other points
+      segFilter = ismember(locations, [colInd, rowInd], 'rows');
+
+      filtered_sift(siftIndex).vldsift.x = filtered_sift(siftIndex).vldsift.x(segFilter);
+      filtered_sift(siftIndex).vldsift.y = filtered_sift(siftIndex).vldsift.y(segFilter);
+      filtered_sift(siftIndex).vldsift.scale = filtered_sift(siftIndex).vldsift.scale(segFilter);
+      filtered_sift(siftIndex).vldsift.norm = filtered_sift(siftIndex).vldsift.norm(segFilter);
+      filtered_sift(siftIndex).vldsift.desc = filtered_sift(siftIndex).vldsift.desc(segFilter);
+
+    end
   end
-  filteredSift = filteredSift(allSiftIndicesWeCareAbout);
-  save('filteredSift.mat', 'filteredSift');
+  filtered_sift = filtered_sift(allSiftIndicesWeCareAbout);
+  save('filteredSift.mat', 'filtered_sift');
 
 end
 
