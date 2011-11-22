@@ -1,6 +1,6 @@
 % this file descirbes a detector using BoW histograms with SIFT features....
   K = 300;
-  hist_threshold = 0.5;
+  hist_threshold = 0.7;
   teapotWnid = 'n04398044';
   chairWnid  = 'n03376595';
    %%
@@ -13,24 +13,30 @@
   disp('Segmenting images...');
   segmentSynSet('images/', 'segLabels/', teapotWnid);
  
+  
   %%
   % filter to only images we want and only features in the segment
   disp('Filtering unwanted sift features...');
   filteredSifts = filterSIFTs(teapotWnid, image_vldsift, false);
   
+  
   %%
   disp('Filtering noisy image sift features...');
   noisyImageSifts = filterNoisySift(teapotWnid, image_vldsift);
-  
-  %%
-  % compute vocabulary set 
-  disp('Compute vocab set');
-  allSifts = image_vldsift;
+
+  %% load negative images  
+  % image_vldsift = %
   load([chairWnid  '.vldsift.mat']);
-  allSifts = [allSifts' image_vldsift']';
-  vocab = computeVocabularySet(allSifts, 2.0, true);
+  chairSifts = image_vldsift(floor(rand(1000,1).*size(image_vldsift,1)) + 1);
+  clear image_vldsift; % clear up some memory  
+
+  %%
+  % compute vocabulary set
+  disp('Compute vocab set');
+  vocab = computeVocabularySet([filteredSifts; chairSifts], 1.5, true);
   % vocab = computeVocabularySet(filteredSifts, K, false);
-  
+
+ 
   %%
   disp('Compute histograms of sifts');
   trainHistograms = sparse(computeHistograms(filteredSifts, vocab));
@@ -41,11 +47,7 @@
 
   %%
   % compute histogram for negative examples
-  % image_vldsift = %
-  
-  chairSifts = image_vldsift(floor(rand(1000,1).*size(image_vldsift,1)) + 1);
   chairHistograms = sparse(computeHistograms(chairSifts, vocab));
-
   trainChairHists = chairHistograms(:,1:138);
   trainNegLabels = zeros(138, 1);  
   testChairHists = chairHistograms(:,139:1000);

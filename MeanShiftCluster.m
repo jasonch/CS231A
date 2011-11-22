@@ -107,6 +107,8 @@ while numInitPts
     
     initPtInds      = find(beenVisitedFlag == 0);           %we can initialize with any of the points not yet visited
     numInitPts      = length(initPtInds);                   %number of active points in set
+		disp('mean shift active points: ');
+		disp(numInitPts);
 
 end
 
