@@ -8,16 +8,11 @@
 function vocabulary = computeVocabularySet(sifts, k, useMeanshift)
 
   % concat features from both the sift objects passed in
-  tic
   siftMatrix = convertSIFT2Matrix(sifts);
-  toc
+  save('allSifts', 'siftMatrix');
 
   % print out size of sift matrix
   size(siftMatrix)
-  % normalize sift matrix
-  for i=1:size(siftMatrix,1)
-      siftMatrix(i,:) = siftMatrix(i,:) ./ sum(siftMatrix(i,:));
-  end
 
   if (useMeanshift)
       [vocabulary, ~, ~] = MeanShiftCluster(siftMatrix', k, false);
@@ -42,8 +37,5 @@ function siftMatrix = convertSIFT2Matrix(siftsObj)
   siftMatrix = [];
   for i=1:size(siftsObj,1)
     siftMatrix = [siftMatrix; siftsObj(i).vldsift.desc'];
-    if mod(i, 50) == 0
-        i
-    end
   end
 end

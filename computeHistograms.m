@@ -11,17 +11,18 @@ function histogram = computeHistograms(sifts, vocabulary)
       filepath = ['./images/' sifts(i).ID '.JPEG'];
       try 
           img = imread(filepath);
-          [Inr, Inc, nb] = size(img);
-          figure; imagesc(img); hold on;
-          %plot((sifts(i).vldsift.x' * Inc), (sifts(i).vldsift.y' * Inr), 'none.dr');
-          features = [];
-          features = [features (sifts(i).vldsift.x' * Inc)];
-          features = [features (sifts(i).vldsift.y' * Inr)];
-          features = [features ones(size(sifts(i).vldsift.x, 2),1)];%2.0.^(-1.0 * sifts(i).vldsift.scale(1:1000)')];%sifts(i).vldsift.scale(1:10)'];
-          plotsiftdescriptor(sifts(i).vldsift.desc, features');
-          hold off;
       catch e
-          disp('image read didnt work');
+      disp('image read didnt work');
+      [Inr, Inc, nb] = size(img);
+      figure; imagesc(img); hold on;
+      plot((sifts(i).vldsift.x' * Inc), (sifts(i).vldsift.y' * Inr), 'none.dr');
+      features = [];
+      features = [features (sifts(i).vldsift.x' * Inc)];
+      features = [features (sifts(i).vldsift.y' * Inr)];
+      features = [features ones(size(sifts(i).vldsift.x, 2),1)];%2.0.^(-1.0 * sifts(i).vldsift.scale(1:1000)')];%sifts(i).vldsift.scale(1:10)'];
+      plotsiftdescriptor(sifts(i).vldsift.desc, features');
+      hold off;
+
       end
     end     
   end

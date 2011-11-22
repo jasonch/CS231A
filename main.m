@@ -41,7 +41,7 @@
   %%
   % compute vocabulary set
   disp('Compute vocab set');
-  vocab = computeVocabularySet([filteredSifts; noisyImageSifts; chairSifts], 40, true);
+  vocab = computeVocabularySet([filteredSifts], 0.5, true);
 
  
   %%
