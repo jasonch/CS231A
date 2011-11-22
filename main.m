@@ -1,5 +1,6 @@
 % this file descirbes a detector using BoW histograms with SIFT features....
   K = 300;
+  hist_threshold = 0.5;
   teapotWnid = 'n04398044';
   chairWnid  = 'n03376595';
    %%
@@ -22,11 +23,12 @@
   noisyImageSifts = filterNoisySift(teapotWnid, image_vldsift);
   
   %%
-  % compute vocabulary set
-  disp(size(filteredSifts, 1));
-  disp(size(filteredSifts, 2)); 
+  % compute vocabulary set 
   disp('Compute vocab set');
-  vocab = computeVocabularySet(filteredSifts, 0.70, true);
+  allSifts = image_vldsift;
+  load([chairWnid  '.vldsift.mat']);
+  allSifts = [allSifts' image_vldsift']';
+  vocab = computeVocabularySet(allSifts, 2.0, true);
   % vocab = computeVocabularySet(filteredSifts, K, false);
   
   %%
@@ -40,7 +42,7 @@
   %%
   % compute histogram for negative examples
   % image_vldsift = %
-  load([chairWnid  '.vldsift.mat']);
+  
   chairSifts = image_vldsift(floor(rand(1000,1).*size(image_vldsift,1)) + 1);
   chairHistograms = sparse(computeHistograms(chairSifts, vocab));
 
