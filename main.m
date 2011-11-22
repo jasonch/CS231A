@@ -4,6 +4,8 @@
   display_sift = true;
   global hist_threshold;
   hist_threshold = 0.8;
+  norm_threshold = 0.3;
+  num_chair_images = 1000;
   
   teapotWnid = 'n04398044';
   chairWnid  = 'n03376595';
@@ -22,23 +24,24 @@
   % filter to only images we want and only features in the segment
   % and discard bottom 30% of the features by norm magnitude
   disp('Filtering unwanted sift features...');
-  filteredSifts = filterSIFTs(teapotWnid, image_vldsift, 0.3, false);
+  filteredSifts = cleanImagesFilter(teapotWnid, image_vldsift);
+  filteredSifts = filterSIFTs(filteredSifts, norm_threshold, false, teapotWnid);
   
   
   %%
   disp('Filtering noisy image sift features...');
   noisyImageSifts = filterNoisySift(teapotWnid, image_vldsift);
+  noisyImageSifts = filterSIFTs(noisyImageSifts, norm_threshold, false, '');
 
   %% load negative images  
   image_vldsift = loadSifts(chairWnid);
-  chairSifts = image_vldsift(floor(rand(1000,1).*size(image_vldsift,1)) + 1);
-  %clear image_vldsift; % clear up some memory  
+  chairSifts = image_vldsift(floor(rand(num_chair_images,1).*size(image_vldsift,1)) + 1);
+  chairSifts = filterSIFTS(chairSifts, norm_threshold, false, '');
 
   %%
   % compute vocabulary set
   disp('Compute vocab set');
-  vocab = computeVocabularySet([filteredSifts; chairSifts], 40, true);
-  % vocab = computeVocabularySet(filteredSifts, K, false);
+  vocab = computeVocabularySet([filteredSifts; noisyImageSifts; chairSifts], 40, true);
 
  
   %%
@@ -54,7 +57,7 @@
   chairHistograms = sparse(computeHistograms(chairSifts, vocab));
   trainChairHists = chairHistograms(:,1:138);
   trainNegLabels = zeros(138, 1);  
-  testChairHists = chairHistograms(:,139:1000);
+  testChairHists = chairHistograms(:,139:num_chair_images);
   testNegLabels = zeros(862, 1);
 %%
   %randomly permute training data:
