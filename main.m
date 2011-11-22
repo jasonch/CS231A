@@ -2,9 +2,9 @@
   K = 300;
   teapotWnid = 'n04398044';
   chairWnid  = 'n03376595';
+
    %%
-  % image_vldsift = %
-   load([teapotWnid '.vldsift.mat']);
+  image_vldsift = loadSifts(teapotWnid); 
 
    %%
   % segment images
@@ -24,8 +24,8 @@
   noisyImageSifts = filterNoisySift(teapotWnid, image_vldsift);
 
   %% load negative images  
-  % image_vldsift = %
-    load([chairWnid  '.vldsift.mat']);
+  image_vldsift = loadSifts(chairWnid);
+
   chairSifts = image_vldsift(floor(rand(1000,1).*size(image_vldsift,1)) + 1);
   clear image_vldsift; % clear up some memory  
 
