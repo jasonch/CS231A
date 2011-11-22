@@ -21,7 +21,10 @@ function vocabulary = computeVocabularySet(sifts, k, useMeanshift)
       % remove dropped clusters
       vocabulary = vocabulary(~isnan(vocabulary(:,1)));
   end
-  
+
+  % normalize the centroids 
+  vocabulary = normc(vocabulary')';
+
   % print out size of vocabulary
   size(vocabulary)
   
