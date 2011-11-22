@@ -1,6 +1,7 @@
 function bow_histogram = computeBoWHistogram( sift_descriptors, bow_dictionary )
 
 %given descriptors of an image, return the bow 
+global hist_threshold;
 
 [hist_len, ~] = size(bow_dictionary);
 

@@ -1,6 +1,9 @@
 % this file descirbes a detector using BoW histograms with SIFT features....
   K = 300;
-  hist_threshold = 0.7;
+  global display_sift; 
+  display_sift = true;
+  global hist_threshold;
+  hist_threshold = 0.8;
   teapotWnid = 'n04398044';
   chairWnid  = 'n03376595';
    %%
@@ -33,7 +36,7 @@
   %%
   % compute vocabulary set
   disp('Compute vocab set');
-  vocab = computeVocabularySet([filteredSifts; chairSifts], 1.5, true);
+  vocab = computeVocabularySet([filteredSifts; chairSifts], 40, true);
   % vocab = computeVocabularySet(filteredSifts, K, false);
 
  

@@ -3,10 +3,24 @@
 
 function histogram = computeHistograms(sifts, vocabulary)
   histogram = zeros(size(vocabulary, 1), size(sifts, 1));
+  global display_sift;
+  
   for i=1:size(sifts,1)
-    if (i < 11)
-      img = ['./images/' sifts(i).ID '.jpg']
-    end
+    if (display_sift && i < 3)
+      filepath = ['./images/' sifts(i).ID '.JPEG'];
+      try 
+          img = imread(filepath);
+          [Inr, Inc, nb] = size(img);
+          figure; imagesc(img); hold on;
+          features = [];
+          features = [features (sifts(i).vldsift.x' * Inc)];
+          features = [features (sifts(i).vldsift.y' * Inr)];
+          features = [features ones(size(sifts(i).vldsift.x, 2),1)];%2.0.^(-1.0 * sifts(i).vldsift.scale(1:1000)')];%sifts(i).vldsift.scale(1:10)'];
+          plotsiftdescriptor(sifts(i).vldsift.desc, features');
+          hold off;
+      catch e
+      end
+    end      
     histogram(:,i) = computeBoWHistogram(sifts(i).vldsift.desc, vocabulary);
   end
 end
