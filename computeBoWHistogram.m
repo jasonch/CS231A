@@ -1,4 +1,4 @@
-function bow_histogram = computeBoWHistogram( sift_descriptors, bow_dictionary )
+function [bow_histogram, sift_to_word] = computeBoWHistogram( sift_descriptors, bow_dictionary )
 
 %given descriptors of an image, return the bow 
 global hist_threshold;
@@ -7,6 +7,9 @@ global hist_threshold;
 
 bow_histogram = zeros(1, hist_len);
 sift_comp_dists = zeros(1, hist_len);
+%this is vector that maps each sift descriptor to the index of the word
+%cluster in the vocabulary
+sift_to_word = zeros(size(sift_descriptors, 1), 1);
 
 for i=1:size(sift_comp_dists,1)
     sift_desc = sift_descriptors(:,i)';
@@ -19,6 +22,7 @@ for i=1:size(sift_comp_dists,1)
     [min_val, min_idx] = min(sift_comp_dists);
     if (min_val < hist_threshold)
         bow_histogram(min_idx) = bow_histogram(min_idx) + 1; 
+        sift_to_word(i) = min_idx;
     end
 end
 
