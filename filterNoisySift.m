@@ -18,8 +18,6 @@ function noisyImageSift = filterNoisySift(synset, allSIFTs)
         idx = idx + 1;
     end
   end
-  idx
-  allSiftIndicesWeCareAbout
   
   noisyImageSift = noisyImageSift(allSiftIndicesWeCareAbout);
   save('noisyImageSift.mat', 'noisyImageSift');   
