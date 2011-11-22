@@ -5,8 +5,11 @@
 % Note parameter k is the number of clusters if using kmeans, but is the
 % bandwidth if using meanshift
 
-function vocabulary = computeVocabularySet(sifts,k, useMeanshift)
+function vocabulary = computeVocabularySet(sifts, k, useMeanshift)
+
+  % concat features from both the sift objects passed in
   siftMatrix = convertSIFT2Matrix(sifts);
+
   % print out size of sift matrix
   size(siftMatrix)
 

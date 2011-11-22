@@ -12,23 +12,30 @@
   disp('Segmenting images...');
   segmentSynSet('images/', 'segLabels/', teapotWnid);
  
+  
   %%
   % filter to only images we want and only features in the segment
   disp('Filtering unwanted sift features...');
   filteredSifts = filterSIFTs(teapotWnid, image_vldsift, false);
   
+  
   %%
   disp('Filtering noisy image sift features...');
   noisyImageSifts = filterNoisySift(teapotWnid, image_vldsift);
-  
+
+  %% load negative images  
+  % image_vldsift = %
+    load([chairWnid  '.vldsift.mat']);
+  chairSifts = image_vldsift(floor(rand(1000,1).*size(image_vldsift,1)) + 1);
+  clear image_vldsift; % clear up some memory  
+
   %%
   % compute vocabulary set
-  disp(size(filteredSifts, 1));
-  disp(size(filteredSifts, 2)); 
   disp('Compute vocab set');
-  vocab = computeVocabularySet(filteredSifts, 0.70, true);
+  vocab = computeVocabularySet([filteredSifts; chairSifts], 0.72, true);
   % vocab = computeVocabularySet(filteredSifts, K, false);
-  
+
+ 
   %%
   disp('Compute histograms of sifts');
   trainHistograms = sparse(computeHistograms(filteredSifts, vocab));
@@ -39,9 +46,7 @@
 
   %%
   % compute histogram for negative examples
-  % image_vldsift = %
-  load([chairWnid  '.vldsift.mat']);
-  chairSifts = image_vldsift(floor(rand(1000,1).*size(image_vldsift,1)) + 1);
+
   chairHistograms = sparse(computeHistograms(chairSifts, vocab));
 
   trainChairHists = chairHistograms(:,1:138);

@@ -32,7 +32,6 @@ function filteredSift = filterSIFTs(synset, allSIFTs, shouldFilterSegment)
       end
     end % end if (shouldFilterSegment)
   end
-
   filteredSift = filteredSift(allSiftIndicesWeCareAbout);
   save('filteredSift.mat', 'filteredSift');
 
