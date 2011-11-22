@@ -4,6 +4,7 @@
   display_sift = true;
   global hist_threshold;
   hist_threshold = 0.8;
+  
   teapotWnid = 'n04398044';
   chairWnid  = 'n03376595';
 
@@ -31,7 +32,7 @@
   %% load negative images  
   image_vldsift = loadSifts(chairWnid);
   chairSifts = image_vldsift(floor(rand(1000,1).*size(image_vldsift,1)) + 1);
-  clear image_vldsift; % clear up some memory  
+  %clear image_vldsift; % clear up some memory  
 
   %%
   % compute vocabulary set

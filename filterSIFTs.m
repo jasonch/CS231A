@@ -18,7 +18,7 @@ function filtered_sift = filterSIFTs(synset, allSIFTs, normThresh, shouldFilterS
     filtered_sift(siftIndex).vldsift.y = filtered_sift(siftIndex).vldsift.y(normFilter);
     filtered_sift(siftIndex).vldsift.scale = filtered_sift(siftIndex).vldsift.scale(normFilter);
     filtered_sift(siftIndex).vldsift.norm = filtered_sift(siftIndex).vldsift.norm(normFilter);
-    filtered_sift(siftIndex).vldsift.desc = filtered_sift(siftIndex).vldsift.desc(normFilter);
+    filtered_sift(siftIndex).vldsift.desc = filtered_sift(siftIndex).vldsift.desc(:,normFilter);
 
     % filter out features with low norm
     if (shouldFilterSegment)
@@ -41,7 +41,7 @@ function filtered_sift = filterSIFTs(synset, allSIFTs, normThresh, shouldFilterS
       filtered_sift(siftIndex).vldsift.y = filtered_sift(siftIndex).vldsift.y(segFilter);
       filtered_sift(siftIndex).vldsift.scale = filtered_sift(siftIndex).vldsift.scale(segFilter);
       filtered_sift(siftIndex).vldsift.norm = filtered_sift(siftIndex).vldsift.norm(segFilter);
-      filtered_sift(siftIndex).vldsift.desc = filtered_sift(siftIndex).vldsift.desc(segFilter);
+      filtered_sift(siftIndex).vldsift.desc = filtered_sift(siftIndex).vldsift.desc(:,segFilter);
 
     end
   end

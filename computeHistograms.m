@@ -6,7 +6,7 @@ function histogram = computeHistograms(sifts, vocabulary)
   global display_sift;
   
   for i=1:size(sifts,1)
-    if (display_sift && i < 3)
+    if (display_sift && i < 10)
       filepath = ['./images/' sifts(i).ID '.JPEG'];
       try 
           img = imread(filepath);
@@ -19,6 +19,7 @@ function histogram = computeHistograms(sifts, vocabulary)
           plotsiftdescriptor(sifts(i).vldsift.desc, features');
           hold off;
       catch e
+          disp('image read didnt work');
       end
     end      
     histogram(:,i) = computeBoWHistogram(sifts(i).vldsift.desc, vocabulary);
