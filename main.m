@@ -41,7 +41,11 @@
   %%
   % compute vocabulary set
   disp('Compute vocab set');
-  vocab = computeVocabularySet([filteredSifts], 0.5, true);
+  allSifts = [filteredSifts; noisyImageSifts; chairSifts];
+  size(allSifts)
+  randomSiftDescs = allSifts(floor(rand(300,1).*size(allSifts,1)) + 1);
+  size(randomSiftDescs)
+  vocab = computeVocabularySet(randomSiftDescs, 0.5, true);
 
  
   %%
