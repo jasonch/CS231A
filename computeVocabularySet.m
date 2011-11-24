@@ -9,6 +9,11 @@ function vocabulary = computeVocabularySet(sifts, k, useMeanshift)
 
   % concat features from both the sift objects passed in
   siftMatrix = convertSIFT2Matrix(sifts);
+
+  % down sample the data space to prevent memory issues
+  if (size(siftMatrix,1) > 30000)
+    siftMatrix = siftMatrix(randsample(size(siftMatrix,1), 30000), :)
+
   save('allSifts', 'siftMatrix');
 
   if (useMeanshift)
