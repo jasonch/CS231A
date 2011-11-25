@@ -8,12 +8,10 @@
   hist_threshold = 0.8;
   norm_threshold = 0.3;
   num_chair_images = 1000;
+  num_vocab_images = 1000;
   
   teapotWnid = 'n04398044';
   chairWnid  = 'n03376595';
-
-   %%
-  image_vldsift = loadSifts(teapotWnid); 
 
    %%
   % segment images
@@ -25,6 +23,8 @@
   %%
   % filter to only images we want and only features in the segment
   % and discard bottom 30% of the features by norm magnitude
+  image_vldsift = loadSifts(teapotWnid); 
+
   disp('Filtering clean and noisy sift features...');
   [filteredSifts, noisySifts] = cleanImagesFilter(teapotWnid, image_vldsift);
   filteredSifts = filterSIFTs(filteredSifts, norm_threshold, false, teapotWnid);
@@ -40,9 +40,8 @@
   disp('Compute vocab set');
   allSifts = [filteredSifts; noisySifts; chairSifts];
   size(allSifts)
-  randomSiftDescs = allSifts(floor(rand(10,1).*size(allSifts,1)) + 1);
-  size(randomSiftDescs)
-  %% 
+  randomSiftDescs = allSifts(floor(rand(num_vocab_images,1).*size(allSifts,1)) + 1);
+  size(randomSiftDescs);
   vocab =   computeVocabularySet(randomSiftDescs, 0.5, true);
  
   %%
