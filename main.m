@@ -1,4 +1,6 @@
 % this file descirbes a detector using BoW histograms with SIFT features....
+
+   %% constants
   K = 300;
   global display_sift; 
   display_sift = true;
@@ -23,39 +25,34 @@
   %%
   % filter to only images we want and only features in the segment
   % and discard bottom 30% of the features by norm magnitude
-  disp('Filtering unwanted sift features...');
-  filteredSifts = cleanImagesFilter(teapotWnid, image_vldsift);
+  disp('Filtering clean and noisy sift features...');
+  [filteredSifts, noisySifts] = cleanImagesFilter(teapotWnid, image_vldsift);
   filteredSifts = filterSIFTs(filteredSifts, norm_threshold, false, teapotWnid);
+  noisySifts    = filterSIFTs(noisySifts   , norm_threshold, false, '');
   
-  
-  %%
-  disp('Filtering noisy image sift features...');
-  noisyImageSifts = filterNoisySift(teapotWnid, image_vldsift);
-  noisyImageSifts = filterSIFTs(noisyImageSifts, norm_threshold, false, '');
-
   %% load negative images  
-  image_vldsift = loadSifts(chairWnid);
-  chairSifts = image_vldsift(floor(rand(num_chair_images,1).*size(image_vldsift,1)) + 1);
-  chairSifts = filterSIFTS(chairSifts, norm_threshold, false, '');
+  chairSifts = loadSifts(chairWnid);
+  chairSifts = chairSifts(randsample(size(chairSifts,1), 300));
+  chairSifts = filterSIFTs(chairSifts, norm_threshold, false, '');
 
   %%
   % compute vocabulary set
   disp('Compute vocab set');
-  allSifts = [filteredSifts; noisyImageSifts; chairSifts];
+  allSifts = [filteredSifts; noisySifts; chairSifts];
   size(allSifts)
-  randomSiftDescs = allSifts(floor(rand(300,1).*size(allSifts,1)) + 1);
+  randomSiftDescs = allSifts(floor(rand(10,1).*size(allSifts,1)) + 1);
   size(randomSiftDescs)
-  vocab = computeVocabularySet(randomSiftDescs, 0.5, true);
-
+  %% 
+  vocab =   computeVocabularySet(randomSiftDescs, 0.5, true);
  
   %%
   disp('Compute histograms of sifts');
   trainHistograms = sparse(computeHistograms(filteredSifts, vocab));
   trainPosLabels = ones(size(trainHistograms,2), 1);
   
-  testHistograms = sparse(computeHistograms(noisyImageSifts, vocab));
+  testHistograms = sparse(computeHistograms(noisySifts, vocab));
   testPosLabels = ones(size(testHistograms,2), 1);
-
+  
   %%
   % compute histogram for negative examples
   chairHistograms = sparse(computeHistograms(chairSifts, vocab));

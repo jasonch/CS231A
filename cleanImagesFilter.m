@@ -1,4 +1,4 @@
-function sifts = cleanImageFilter(synset, allsifts)
+function [cleanSifts, noisySifts] = cleanImageFilter(synset, allsifts)
 
 
   sifts = allsifts;
@@ -9,8 +9,8 @@ function sifts = cleanImageFilter(synset, allsifts)
 
   cleanFilter = ismember(siftImageIDs, cleanImageIDs);
 
-  sifts = sifts(cleanFilter); 
-
+  cleanSifts = sifts(cleanFilter); 
+  noisySifts = sifts(~cleanFilter);
 end
 
 function ids =  IDstructToVector(sift, synset)
