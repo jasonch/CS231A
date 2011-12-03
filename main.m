@@ -1,6 +1,6 @@
 % this file descirbes a detector using BoW histograms with SIFT features....
-
    %% constants
+  
   K = 300;
   global display_sift; 
   display_sift = true;
@@ -12,18 +12,20 @@
   
   teapotWnid = 'n04398044';
   chairWnid  = 'n03376595';
+  
+  dataLocation = './';
 
    %%
   % segment images
   addpath('normalized_cut\');
   disp('Segmenting images...');
-  segmentSynSet('images/', 'segLabels/', teapotWnid);
+  segmentSynSet([dataLocation 'images/'], [dataLocation 'segLabels/'], teapotWnid);
  
   
   %%
   % filter to only images we want and only features in the segment
   % and discard bottom 30% of the features by norm magnitude
-  image_vldsift = loadSifts(teapotWnid); 
+  image_vldsift = loadSifts(dataLocation, teapotWnid); 
 
   disp('Filtering clean and noisy sift features...');
   [filteredSifts, noisySifts] = cleanImagesFilter(teapotWnid, image_vldsift);
@@ -31,7 +33,7 @@
   noisySifts    = filterSIFTs(noisySifts   , norm_threshold, false, '');
   
   %% load negative images  
-  chairSifts = loadSifts(chairWnid);
+  chairSifts = loadSifts(dataLocation, chairWnid);
   chairSifts = chairSifts(randsample(size(chairSifts,1), 300));
   chairSifts = filterSIFTs(chairSifts, norm_threshold, false, '');
 
@@ -71,10 +73,4 @@
   [test_data, test_labels] = randomizeTrainingData([testHistograms testChairHists], [testPosLabels; testNegLabels]);
   [predicted_label, accuracy, decision_vals] = predict(test_labels, test_data', model);
   accuracy
-  
-  
-  
-  
-  
-  
   

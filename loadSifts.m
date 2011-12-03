@@ -1,6 +1,6 @@
-function newSifts = loadSifts(synsetId)
+function newSifts = loadSifts(dataLoc, synsetId)
   % image_vldsift = %
-   load([synsetId '.vldsift.mat']);
+   load([dataLoc synsetId '.vldsift.mat']);
 
   newSifts = image_vldsift;
 
