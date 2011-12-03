@@ -13,19 +13,19 @@
   teapotWnid = 'n04398044';
   chairWnid  = 'n03376595';
   
-  dataLocation = './';
+  data_path = './';
 
    %%
   % segment images
   addpath('normalized_cut\');
   disp('Segmenting images...');
-  segmentSynSet([dataLocation 'images/'], [dataLocation 'segLabels/'], teapotWnid);
+  segmentSynSet([data_path 'images/'], [data_path 'segLabels/'], teapotWnid);
  
   
   %%
   % filter to only images we want and only features in the segment
   % and discard bottom 30% of the features by norm magnitude
-  image_vldsift = loadSifts(dataLocation, teapotWnid); 
+  image_vldsift = loadSifts(data_path, teapotWnid); 
 
   disp('Filtering clean and noisy sift features...');
   [filteredSifts, noisySifts] = cleanImagesFilter(teapotWnid, image_vldsift);
@@ -33,7 +33,7 @@
   noisySifts    = filterSIFTs(noisySifts   , norm_threshold, false, '');
   
   %% load negative images  
-  chairSifts = loadSifts(dataLocation, chairWnid);
+  chairSifts = loadSifts(data_path, chairWnid);
   chairSifts = chairSifts(randsample(size(chairSifts,1), 300));
   chairSifts = filterSIFTs(chairSifts, norm_threshold, false, '');
 
