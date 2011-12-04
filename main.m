@@ -4,7 +4,7 @@
   global display_sift; 
   display_sift = false;
   global hist_threshold;
-  hist_threshold = 0.5;
+  hist_threshold = 0.8;
   global data_path; % top level path to where SIFT matrices images, and segLabels are stored
   %data_path = '/tmp/';
   data_path = './';
@@ -82,8 +82,9 @@
   else
     addpath('liblinear-1.8/liblinear-1.8/matlab/');
   end 
-  %model = train(training_labels , training_data'); 
-  model = train(training_labels(1:20) , training_data(1:20)', '-e 0.1 -v 15 -s 2 -B 1'); 
+  model = train(training_labels, training_data', '-e 0.1 -v 100 -s 1'); 
+  %model = train([training_labels(1:15)' training_labels(1:15)' training_labels(1:15)']' , [training_data(:, 1:15) training_data(1:15) training_data(1:15)]', '-e 0.1 -v 50 -s 1'); 
+  %model = train(repmat(training_labels(1:150), 1, 1), repmat(training_data(:,1:150)', 1, 1), '-e 0.1 -v 30 -s 1');
   size(trainHistograms)
   size(trainChairHists)
   
