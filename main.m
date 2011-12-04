@@ -1,8 +1,6 @@
 % this file descirbes a detector using BoW histograms with SIFT features....
    %% constants
    % CHECK ALL THESE BEFORE RUNNING!!
-  K = 300; % K for kmeans
-  bandwidth = 0.75; % bandwidth for meanshift
   global display_sift; 
   display_sift = false;
   global hist_threshold;
@@ -10,7 +8,9 @@
   global data_path; % top level path to where SIFT matrices images, and segLabels are stored
   data_path = '/tmp/';
 
-  norm_threshold = 0.3;
+  useMeanshift = false; K = 500; % K for kmeans
+  useMeanshift = true;  K = 0.70; % bandwidth for meanshift
+  norm_threshold = 0.3; % percentage of maximum norm
   num_chair_images = 1000;
   num_vocab_images = 2000;
   
@@ -48,9 +48,9 @@
   disp('Compute vocab set');
   allSifts = [filteredSifts; noisySifts; chairSifts];
   size(allSifts)
-  randomSiftDescs = allSifts(randsample(size(allSifts,1), num_vocab));
+  randomSiftDescs = allSifts(randsample(size(allSifts,1), num_vocab_images));
   size(randomSiftDescs);
-  vocab =   computeVocabularySet(randomSiftDescs, bandwidth, true);
+  vocab =   computeVocabularySet(randomSiftDescs, K, useMeanshift);
   %load('vocabPoint50WindowSize.mat');
  
   %%
@@ -65,7 +65,7 @@
   % compute histogram for negative examples
   % use unrelated synset for negative examples. Use the same number of negative examples
   % as positive exapmles
-  num_pos_examples = size(trainingHistograms,2);
+  num_pos_examples = size(trainHistograms,2);
   chairHistograms = sparse(computeHistograms(chairSifts, vocab));
   trainChairHists = chairHistograms(:,1:num_pos_examples);
   trainNegLabels = zeros(num_pos_examples, 1);  
