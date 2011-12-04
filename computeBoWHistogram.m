@@ -13,7 +13,7 @@ function [bow_histogram, sift_to_word] = computeBoWHistogram( sift_descriptors, 
   pair_distances = pdist2(double(sift_descriptors)', bow_dictionary);
   [min_vals, min_idx] = min(pair_distances, [], 2);
   % assign the indices where the value is above threshold to zero (doesn't work currently??)
-  min_idx(min_vals > hist_threshold) = 0;
+  min_idx(min_vals > hist_threshold)= 0;
 
   % get the histogram, but ignore those assigned to zeros
   bow_histogram_plus1 = histc(min_idx, [0:hist_len]);
@@ -37,7 +37,6 @@ function [bow_histogram, sift_to_word] = computeBoWHistogram( sift_descriptors, 
       end
   end
 %}
-
 
   % normalize the histogram
   if (norm(bow_histogram) ~= 0)

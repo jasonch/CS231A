@@ -4,7 +4,7 @@
   global display_sift; 
   display_sift = false;
   global hist_threshold;
-  hist_threshold = 0.5;
+  hist_threshold = 0.8;
   global data_path; % top level path to where SIFT matrices images, and segLabels are stored
   data_path = '/tmp/';
 

@@ -2,7 +2,7 @@ function detected_labels = detectImage(test_image, model, levels, vocab)
 
   % returns a matrix of predicted labels, which is 1 if we decided an object (teapot) is in that region, at each level
   % the second dimension is each region in column order 
-  %    ---------------
+  %    -------------
   %   |  1 | 3 | ..
   %   |----|---|---
   %   |  2 | 4 | ..
@@ -19,7 +19,8 @@ function detected_labels = detectImage(test_image, model, levels, vocab)
     y_bins = assign2bins(test_image.vldsift.y, i);
     for row = 1:i
       for col = 1:i
-        binDescs = test_image.vldsift.desc((x_bins == col) & (y_bins == row));
+        binDescs = test_image.vldsift.desc(:, (x_bins == col) & (y_bins == row));
+        size(binDescs)
         if (size(binDescs, 2) == 0)
           bins(row + (col-1)*i,:) = zeros(size(vocab,1),1);
         else
