@@ -10,7 +10,7 @@
   data_path = './';
 
   useMeanshift = false; K = 500; % K for kmeans
-  useMeanshift = true;  K = 0.63; % bandwidth for meanshift
+  useMeanshift = true;  K = 0.68; % bandwidth for meanshift
   norm_threshold = 0.3; % percentage of maximum norm
   num_chair_images = 1000;
   num_vocab_images = 2000;
@@ -83,7 +83,7 @@
     addpath('liblinear-1.8/liblinear-1.8/matlab/');
   end 
   %model = train(training_labels , training_data'); 
-  model = train(training_labels , training_data', '-e 0.01 -v 40 -s 2 -B 1'); 
+  model = train(training_labels(1:20) , training_data(1:20)', '-e 0.1 -v 15 -s 2 -B 1'); 
   size(trainHistograms)
   size(trainChairHists)
   
