@@ -4,12 +4,12 @@
   global display_sift; 
   display_sift = false;
   global hist_threshold;
-  hist_threshold = 0.8;
+  hist_threshold = 0.5;
   global data_path; % top level path to where SIFT matrices images, and segLabels are stored
   data_path = '/tmp/';
 
-  useMeanshift = false; K = 500; % K for kmeans
-  useMeanshift = true;  K = 0.70; % bandwidth for meanshift
+  %useMeanshift = false; K = 500; % K for kmeans
+  useMeanshift = true;  K = 0.68; % bandwidth for meanshift
   norm_threshold = 0.3; % percentage of maximum norm
   num_chair_images = 1000;
   num_vocab_images = 2000;
