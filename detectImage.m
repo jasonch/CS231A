@@ -1,15 +1,16 @@
-function [detected_labels, decision_vals] = detectImage(test_image, model, levels, vocab)
+function detected_labels = detectImage(test_image, model, levels, vocab)
 
   % returns a matrix of predicted labels, which is 1 if we decided an object (teapot) is in that region, at each level
   % the second dimension is each region in column order 
   %    ---------------
   %   |  1 | 3 | ..
+  %   |----|---|---
   %   |  2 | 4 | ..
   %    -------------
-  predicted_labels = zeros(levels, levels*levels);
-  decision_vals    = zeros(levels, levels*levels);
+  detected_labels = [];
 
   for i=1:levels
+
     bins = zeros(i*i, size(vocab, 1));
 
     % for each level, distribute the sift descriptors into their corresponding 
@@ -19,12 +20,18 @@ function [detected_labels, decision_vals] = detectImage(test_image, model, level
     for row = 1:i
       for col = 1:i
         binDescs = test_image.vldsift.desc((x_bins == col) & (y_bins == row));
-        bins(row + (col-1)*i, :) = computeBoWHistogram(binDescs, vocab);
+        if (size(binDescs, 2) == 0)
+          bins(row + (col-1)*i,:) = zeros(size(vocab,1),1);
+        else
+          bins(row + (col-1)*i, :) = computeBoWHistogram(binDescs, vocab)
+        end
       end
     end
 
     % run SVM on the regions to get prediction for each region'
-    [predicted_label, accuracy, decision_vals] = predict(zeros(i*i,1), sparse(bins), model)
+    [predictions, accuracy, decisions] = predict(zeros(i*i,1), sparse(bins), model);
+    detected_labels = [detected_labels; predictions];
+
   end % end level
 
 
