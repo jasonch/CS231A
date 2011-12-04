@@ -1,25 +1,31 @@
 % this file descirbes a detector using BoW histograms with SIFT features....
    %% constants
-  
-  K = 300;
+   % CHECK ALL THESE BEFORE RUNNING!!
+  K = 300; % K for kmeans
+  bandwidth = 0.75; % bandwidth for meanshift
   global display_sift; 
-  display_sift = true;
+  display_sift = false;
   global hist_threshold;
   hist_threshold = 0.8;
+  global data_path; % top level path to where SIFT matrices images, and segLabels are stored
+  data_path = '/tmp/';
+
   norm_threshold = 0.3;
   num_chair_images = 1000;
-  num_vocab_images = 1000;
+  num_vocab_images = 2000;
   
   teapotWnid = 'n04398044';
   chairWnid  = 'n03376595';
-  
-  data_path = './';
 
    %%
   % segment images
-  addpath('normalized_cut\');
+  if (ispc)
+    addpath('normalized_cut\');
+  else
+    addpath('normalized_cut/');
+  end
   disp('Segmenting images...');
-  segmentSynSet([data_path 'images/'], [data_path 'segLabels/'], teapotWnid);
+  %segmentSynSet([data_path 'images/'], [data_path 'segLabels/'], teapotWnid);
  
   
   %%
@@ -34,7 +40,7 @@
   
   %% load negative images  
   chairSifts = loadSifts(data_path, chairWnid);
-  chairSifts = chairSifts(randsample(size(chairSifts,1), 300));
+  chairSifts = chairSifts(randsample(size(chairSifts,1), num_chair_images));
   chairSifts = filterSIFTs(chairSifts, norm_threshold, false, '');
 
   %%
@@ -42,9 +48,10 @@
   disp('Compute vocab set');
   allSifts = [filteredSifts; noisySifts; chairSifts];
   size(allSifts)
-  randomSiftDescs = allSifts(floor(rand(num_vocab_images,1).*size(allSifts,1)) + 1);
+  randomSiftDescs = allSifts(randsample(size(allSifts,1), num_vocab));
   size(randomSiftDescs);
-  vocab =   computeVocabularySet(randomSiftDescs, 0.5, true);
+  vocab =   computeVocabularySet(randomSiftDescs, bandwidth, true);
+  %load('vocabPoint50WindowSize.mat');
  
   %%
   disp('Compute histograms of sifts');
@@ -56,18 +63,26 @@
   
   %%
   % compute histogram for negative examples
+  % use unrelated synset for negative examples. Use the same number of negative examples
+  % as positive exapmles
+  num_pos_examples = size(trainingHistograms,2);
   chairHistograms = sparse(computeHistograms(chairSifts, vocab));
-  trainChairHists = chairHistograms(:,1:138);
-  trainNegLabels = zeros(138, 1);  
-  testChairHists = chairHistograms(:,139:num_chair_images);
-  testNegLabels = zeros(862, 1);
+  trainChairHists = chairHistograms(:,1:num_pos_examples);
+  trainNegLabels = zeros(num_pos_examples, 1);  
+  testChairHists = chairHistograms(:, (1+num_pos_examples):num_chair_images);
+  testNegLabels = zeros(num_chair_images-num_pos_examples, 1);
 %%
   %randomly permute training data:
   [training_data, training_labels] = randomizeTrainingData([trainHistograms trainChairHists], [trainPosLabels; trainNegLabels]);
   
   % plug into liblinear - train
-  addpath('liblinear-1.8\liblinear-1.8\matlab\');
+  if (ispc)
+    addpath('liblinear-1.8\liblinear-1.8\matlab\');
+  else
+    addpath('liblinear-1.8/liblinear-1.8/matlab/');
+  end 
   model = train(training_labels , training_data'); 
+
   %%
   %randomly permute test data:
   [test_data, test_labels] = randomizeTrainingData([testHistograms testChairHists], [testPosLabels; testNegLabels]);
