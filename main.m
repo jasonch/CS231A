@@ -6,10 +6,11 @@
   global hist_threshold;
   hist_threshold = 0.8;
   global data_path; % top level path to where SIFT matrices images, and segLabels are stored
-  data_path = '/tmp/';
+  %data_path = '/tmp/';
+  data_path = './';
 
   useMeanshift = false; K = 500; % K for kmeans
-  useMeanshift = true;  K = 0.70; % bandwidth for meanshift
+  useMeanshift = true;  K = 0.63; % bandwidth for meanshift
   norm_threshold = 0.3; % percentage of maximum norm
   num_chair_images = 1000;
   num_vocab_images = 2000;
@@ -74,15 +75,18 @@
 %%
   %randomly permute training data:
   [training_data, training_labels] = randomizeTrainingData([trainHistograms trainChairHists], [trainPosLabels; trainNegLabels]);
-  
+
   % plug into liblinear - train
   if (ispc)
     addpath('liblinear-1.8\liblinear-1.8\matlab\');
   else
     addpath('liblinear-1.8/liblinear-1.8/matlab/');
   end 
-  model = train(training_labels , training_data'); 
-
+  %model = train(training_labels , training_data'); 
+  model = train(training_labels , training_data', '-e 0.01 -v 40 -s 2 -B 1'); 
+  size(trainHistograms)
+  size(trainChairHists)
+  
   %%
   %randomly permute test data:
   [test_data, test_labels] = randomizeTrainingData([testHistograms testChairHists], [testPosLabels; testNegLabels]);

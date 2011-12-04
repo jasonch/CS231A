@@ -5,6 +5,7 @@ function histogram = computeHistograms(sifts, vocabulary, data_path)
   histogram = zeros(size(vocabulary, 1), size(sifts, 1));
   global display_sift;
   
+  size(sifts,1)
   for i=1:size(sifts,1)     
     [histogram(:,i), sift_to_word] = computeBoWHistogram(sifts(i).vldsift.desc, vocabulary);
     if (display_sift && i < 4)
@@ -24,6 +25,7 @@ function histogram = computeHistograms(sifts, vocabulary, data_path)
       catch e
         disp('image read didnt work');
       end
-    end     
+    end    
+    i
   end
 end
