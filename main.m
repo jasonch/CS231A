@@ -8,9 +8,9 @@
 
   % Parameters (TODO: tune later)
   %useMeanshift = false; K = 500; % K for kmeans
-  useMeanshift = true;  K = 0.7; %0.68; % bandwidth for meanshift
+  useMeanshift = true;  K = 0.68; %0.68; % bandwidth for meanshift
   norm_threshold = 0.3; % percentage of maximum norm
-  num_vocab_images = 15;%2000
+  num_vocab_images = 35;%2000
   hist_threshold = 0.8;
   
   % Synset ids
