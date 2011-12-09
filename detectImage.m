@@ -8,6 +8,7 @@ function detected_labels = detectImage(test_image, model, levels, vocab)
   %   |  2 | 4 | ..
   %    -------------
   detected_labels = [];
+  decision_vals = [];
 
   for i=1:levels
 
@@ -20,21 +21,22 @@ function detected_labels = detectImage(test_image, model, levels, vocab)
     for row = 1:i
       for col = 1:i
         binDescs = test_image.vldsift.desc(:, (x_bins == col) & (y_bins == row));
-        size(binDescs)
         if (size(binDescs, 2) == 0)
           bins(row + (col-1)*i,:) = zeros(size(vocab,1),1);
         else
-          bins(row + (col-1)*i, :) = computeBoWHistogram(binDescs, vocab)
+          bins(row + (col-1)*i, :) = computeBoWHistogram(binDescs, vocab);
         end
       end
     end
 
     % run SVM on the regions to get prediction for each region'
-    [predictions, accuracy, decisions] = predict(zeros(i*i,1), sparse(bins), model);
+    [predictions, accuracy, prob_estimates] = predict(zeros(i*i,1), sparse(bins), model);
     detected_labels = [detected_labels; predictions];
+    decision_vals = [decision_vals; prob_estimates];
 
   end % end level
-
+  % surppress uncertain detections, unless it's the highest detection
+  detected_labels(decision_vals < 0.5 & decision_vals ~= max(decision_vals)) = 0;
 
 % Potentially useful function:
 % creates nb uniform bins within range of x and assigns each x to a bin

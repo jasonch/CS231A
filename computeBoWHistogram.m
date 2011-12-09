@@ -1,4 +1,6 @@
-function [bow_histogram, sift_to_word] = computeBoWHistogram( sift_descriptors, bow_dictionary )
+% For each SIFT feature, find the closest corresponding word in the bow_dictionary, 
+% and add that to the histogram. 
+function [bow_histogram, sift_to_word] = computeBoWHistogram( sift_descriptors, bow_dictionary)
 
   %given descriptors of an image, return the bow 
   global hist_threshold;
@@ -17,7 +19,18 @@ function [bow_histogram, sift_to_word] = computeBoWHistogram( sift_descriptors, 
 
   % get the histogram, but ignore those assigned to zeros
   bow_histogram_plus1 = histc(min_idx, [0:hist_len]);
+  if (size(bow_histogram_plus1,1)==1)
+    bow_histogram_plus1 = bow_histogram_plus1';
+  end
   bow_histogram = bow_histogram_plus1(2:size(bow_histogram_plus1,1));
+
+  % normalize the histogram
+  if (norm(bow_histogram) ~= 0)
+    bow_histogram = bow_histogram ./ norm(bow_histogram);
+  end
+end
+
+
 
 %{
    for i=1:size(sift_descriptors,2)
@@ -37,14 +50,6 @@ function [bow_histogram, sift_to_word] = computeBoWHistogram( sift_descriptors, 
       end
   end
 %}
-
-  % normalize the histogram
-  if (norm(bow_histogram) ~= 0)
-    bow_histogram = bow_histogram ./ norm(bow_histogram);
-  end
-end
-
-
 
 %1) find multiple synsets to train on 
 %2) for each image in a synset, get SIFT features matrix 

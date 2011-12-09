@@ -10,21 +10,19 @@
 
   %useMeanshift = false; K = 500; % K for kmeans
   useMeanshift = true;  K = 0.68; % bandwidth for meanshift
-  norm_threshold = 0.3; % percentage of maximum norm
+  norm_threshold = 4; % minimum norm to consider 
   num_chair_images = 1000;
   num_vocab_images = 2000;
+
+  spatialPyramidLevels = 3;
   
   teapotWnid = 'n04398044';
   chairWnid  = 'n03376595';
 
    %%
   % segment images
-  if (ispc)
-    addpath('normalized_cut\');
-  else
-    addpath('normalized_cut/');
-  end
-  disp('Segmenting images...');
+  %disp('Segmenting images...');
+  addPathByPlatform('normalized_cut/');
   %segmentSynSet([data_path 'images/'], [data_path 'segLabels/'], teapotWnid);
  
   
@@ -55,10 +53,10 @@
  
   %%
   disp('Compute histograms of sifts');
-  trainHistograms = sparse(computeHistograms(filteredSifts, vocab));
+  trainHistograms = sparse(computeHistograms(filteredSifts, vocab, data_path, spatialPyramidLevels));
   trainPosLabels = ones(size(trainHistograms,2), 1);
   
-  testHistograms = sparse(computeHistograms(noisySifts, vocab));
+  testHistograms = sparse(computeHistograms(noisySifts, vocab, data_path, spatialPyramidLevels));
   testPosLabels = ones(size(testHistograms,2), 1);
   
   %%
@@ -66,7 +64,7 @@
   % use unrelated synset for negative examples. Use the same number of negative examples
   % as positive exapmles
   num_pos_examples = size(trainHistograms,2);
-  chairHistograms = sparse(computeHistograms(chairSifts, vocab));
+  chairHistograms = sparse(computeHistograms(chairSifts, vocab, data_path, spatialPyramidLevels));
   trainChairHists = chairHistograms(:,1:num_pos_examples);
   trainNegLabels = zeros(num_pos_examples, 1);  
   testChairHists = chairHistograms(:, (1+num_pos_examples):num_chair_images);
@@ -74,18 +72,24 @@
 %%
   %randomly permute training data:
   [training_data, training_labels] = randomizeTrainingData([trainHistograms trainChairHists], [trainPosLabels; trainNegLabels]);
-  
-  % plug into liblinear - train
-  if (ispc)
-    addpath('liblinear-1.8\liblinear-1.8\matlab\');
-  else
-    addpath('liblinear-1.8/liblinear-1.8/matlab/');
-  end 
-  model = train(training_labels , training_data'); 
 
+  % plug into liblinear - train
+  addPathByPlatform('liblinear-1.8\liblinear-1.8\matlab\');
+  %model = train(training_labels, training_data', '-e 0.1 -v 100 -s 1')
+  model = train(training_labels, training_data');
+  %model = train([training_labels(1:15)' training_labels(1:15)' training_labels(1:15)']' , [training_data(:, 1:15) training_data(1:15) training_data(1:15)]', '-e 0.1 -v 50 -s 1'); 
+  %model = train(repmat(training_labels(1:150), 1, 1), repmat(training_data(:,1:150)', 1, 1), '-e 0.1 -v 30 -s 1');
+  
   %%
   %randomly permute test data:
   [test_data, test_labels] = randomizeTrainingData([testHistograms testChairHists], [testPosLabels; testNegLabels]);
   [predicted_label, accuracy, decision_vals] = predict(test_labels, test_data', model);
   accuracy
-  
+
+  %% 
+  % attempt to detect the object in the test image
+  disp('Running detector...');
+  detected_labels = zeros(size(noisySifts, 1), sum((1:3).^2));
+  for i=1:size(noisySifts, 1)
+    detected_labels(i, :) = detectImage(noisySifts(i), model, 3, vocab); 
+  end  
