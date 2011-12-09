@@ -46,10 +46,10 @@
       [filteredSifts, noisySifts] = cleanImagesFilter(char(wordnet_ids(i)), image_vldsift);
       tmp =  filterSIFTs(filteredSifts, norm_threshold, false, wordnet_ids(i));%TODO: look inside filterSIFTs
       filtered_sifts = cat(1, filtered_sifts, tmp);
-      trainingLabels = [trainingLabels; (i * ones(size(tmp), 1))];
+      trainingLabels = [trainingLabels; ((i-1) * ones(size(tmp), 1))];
       tmp = filterSIFTs(noisySifts, norm_threshold, false, '');%TODO change norm thresh
       noisy_sifts = cat(1, noisy_sifts, tmp);
-      testingLabels = [testingLabels; (i * ones(size(tmp), 1))];
+      testingLabels = [testingLabels; ((i-1) * ones(size(tmp), 1))];
   end
 
   %%
@@ -81,7 +81,8 @@
   else
     addpath('liblinear-1.8/liblinear-1.8/matlab/');
   end 
-  model = train(train_labels, train_data', '-e 0.1 -v 100 -s 1'); 
+  svm_options = ['-e 0.1 -v 100 -s ' int2str(size(wordnet_ids, 2))];
+  model = train(train_labels, train_data', svm_options); 
   %model = train([training_labels(1:15)' training_labels(1:15)' training_labels(1:15)']' , [training_data(:, 1:15) training_data(1:15) training_data(1:15)]', '-e 0.1 -v 50 -s 1'); 
   %model = train(repmat(training_labels(1:150), 1, 1), repmat(training_data(:,1:150)', 1, 1), '-e 0.1 -v 30 -s 1');
   size(trainHistograms)
