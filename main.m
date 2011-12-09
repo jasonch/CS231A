@@ -56,7 +56,12 @@
       noisy_sifts = cat(1, noisy_sifts, tmp);
       testingLabels = [testingLabels; ((i-1) * ones(size(tmp), 1))];
   end
-
+  
+  %%
+  %Small tuning modification
+  filtered_sifts = [filtered_sifts; filtered_sifts(230:310)];
+  trainingLabels = [trainingLabels; trainingLabels(230:310)];
+  
   %%
   % compute vocabulary set
   disp('Compute vocab set');
@@ -78,7 +83,7 @@
   [train_data, train_labels] = randomizeTrainingData(trainHistograms, trainingLabels);
 
   % plug into liblinear - train
-  svm_options = ['-e 0.1 -s ' int2str(size(wordnet_ids, 2))];
+  svm_options = ['-e 0.5 -c 10000 -s ' int2str(size(wordnet_ids, 2))];
   model = train(train_labels, train_data', svm_options); 
   %model = train([training_labels(1:15)' training_labels(1:15)' training_labels(1:15)']' , [training_data(:, 1:15) training_data(1:15) training_data(1:15)]', '-e 0.1 -v 50 -s 1'); 
   %model = train(repmat(training_labels(1:150), 1, 1), repmat(training_data(:,1:150)', 1, 1), '-e 0.1 -v 30 -s 1');
