@@ -2,31 +2,36 @@
    %% constants
    % CHECK ALL THESE BEFORE RUNNING!!
   global display_sift; 
-  display_sift = false;
   global hist_threshold;
-  hist_threshold = 0.8;
   global data_path; % top level path to where SIFT matrices images, and segLabels are stored
-  %data_path = '/tmp/';
-  data_path = './';
+  display_sift = false;  
 
+  % Parameters (TODO: tune later)
   %useMeanshift = false; K = 500; % K for kmeans
   useMeanshift = true;  K = 0.7; %0.68; % bandwidth for meanshift
   norm_threshold = 0.3; % percentage of maximum norm
-  %num_chair_images = 1000;
   num_vocab_images = 15;%2000
+  hist_threshold = 0.8;
   
-  wordnet_ids = {'n04398044', 'n03376595'};
-  %teapotWnid = 'n04398044';
-  %chairWnid  = 'n03376595';
-
+  % Synset ids
+  wordnet_ids = {'n04398044', 'n02992211', 'n03255030'};%, 'n02165456'};
+  %               teapot       cello        dumbbell
+  % Paths to add:
+  if (ispc)
+    addpath('liblinear-1.8\liblinear-1.8\matlab\');
+    addpath('normalized_cut\');
+    addpath('siftmatrixes\');
+  else
+    addpath('liblinear-1.8/liblinear-1.8/matlab/');
+    addpath('normalized_cut/');
+    addpath('siftmatrixes/');
+  end 
+  %data_path = '/tmp/';
+  data_path = './siftmatrixes/';
+  
    %%
   % segment images
-  if (ispc)
-    addpath('normalized_cut\');
-  else
-    addpath('normalized_cut/');
-  end
-  disp('Segmenting images...');
+  %disp('Segmenting images...');
   %segmentSynSet([data_path 'images/'], [data_path 'segLabels/'], teapotWnid);
  
   
@@ -41,8 +46,9 @@
   
   disp('Filtering clean and noisy sift features...');
   for i=1:size(wordnet_ids, 2)
-      image_vldsift = loadSifts(data_path, char(wordnet_ids(i)));
-      [filteredSifts, noisySifts] = cleanImagesFilter(char(wordnet_ids(i)), image_vldsift);
+      wordnet_id = char(wordnet_ids(i));
+      image_vldsift = loadSifts(data_path, wordnet_id);
+      [filteredSifts, noisySifts] = cleanImagesFilter(wordnet_id, image_vldsift);
       tmp =  filterSIFTs(filteredSifts, norm_threshold, false, wordnet_ids(i));%TODO: look inside filterSIFTs
       filtered_sifts = cat(1, filtered_sifts, tmp);
       trainingLabels = [trainingLabels; ((i-1) * ones(size(tmp), 1))];
@@ -72,12 +78,7 @@
   [train_data, train_labels] = randomizeTrainingData(trainHistograms, trainingLabels);
 
   % plug into liblinear - train
-  if (ispc)
-    addpath('liblinear-1.8\liblinear-1.8\matlab\');
-  else
-    addpath('liblinear-1.8/liblinear-1.8/matlab/');
-  end 
-  svm_options = ['-e 0.1 -v 100 -s ' int2str(size(wordnet_ids, 2))];
+  svm_options = ['-e 0.1 -s ' int2str(size(wordnet_ids, 2))];
   model = train(train_labels, train_data', svm_options); 
   %model = train([training_labels(1:15)' training_labels(1:15)' training_labels(1:15)']' , [training_data(:, 1:15) training_data(1:15) training_data(1:15)]', '-e 0.1 -v 50 -s 1'); 
   %model = train(repmat(training_labels(1:150), 1, 1), repmat(training_data(:,1:150)', 1, 1), '-e 0.1 -v 30 -s 1');

@@ -5,7 +5,7 @@ function [cleanSifts, noisySifts] = cleanImageFilter(synset, allsifts)
   siftImageIDs = IDstructToVector(allsifts, synset);
  
   % cleanImageIDs = %
-    load(strcat(synset, '_clean.mat')); 
+  load(strcat(synset, '_clean.mat')); 
 
   cleanFilter = ismember(siftImageIDs, cleanImageIDs);
 
