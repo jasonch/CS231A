@@ -16,7 +16,6 @@
   num_vocab_images = 15;%2000
   
   wordnet_ids = {'n04398044', 'n03376595'};
-  
   %teapotWnid = 'n04398044';
   %chairWnid  = 'n03376595';
 
@@ -35,8 +34,8 @@
   % filter to only images we want and only features in the segment
   % and discard bottom 30% of the features by norm magnitude
   
-  filtered_sifts = [];% = cell(size(wordnet_ids));
-  noisy_sifts = [];% = cell(size(wordnet_ids));
+  filtered_sifts = [];
+  noisy_sifts = [];
   trainingLabels = [];
   testingLabels = [];
   
@@ -66,10 +65,7 @@
   %%
   disp('Compute histograms of sifts');
   trainHistograms = sparse(computeHistograms(filtered_sifts, vocab));
-  %trainPosLabels = ones(size(trainHistograms,2), 1);
-  
   testHistograms = sparse(computeHistograms(noisy_sifts, vocab));
-  %testPosLabels = ones(size(testHistograms,2), 1);
 
 %%
   %randomly permute training data:
