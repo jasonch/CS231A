@@ -4,16 +4,19 @@
   global display_sift; 
   global hist_threshold;
   global data_path; % top level path to where SIFT matrices images, and segLabels are stored
+  global jitter_grid_size; % number of steps to jitter x and y by, set to 1 to turn jitter off
+  global sp_weight_drop; %smaller sp regions should be weighted less
+  sp_weight_drop = 0.5; 
+  jitter_grid_size = 3;
   display_sift = false;  
-
-  % Parameters (TODO: tune later)
-  %useMeanshift = false; K = 500; % K for kmeans
-  useMeanshift = true;  K = 0.68; % bandwidth for meanshift
-  
-  norm_threshold = 0; % percentage of maximum norm
-  num_vocab_images = 1000;
   hist_threshold = 0.8;
   
+  % Parameters (TODO: tune later)
+  %useMeanshift = false; K = 500; % K for kmeans
+  useMeanshift = true;  K = 0.73; % bandwidth for meanshift
+  
+  norm_threshold = 4; % percentage of maximum norm
+  num_vocab_images = 70;
   spatial_pyramid_levels = 2;
 
   % Synset ids
@@ -52,7 +55,11 @@
       [filteredSifts, noisySifts] = cleanImagesFilter(wordnet_id, image_vldsift);
       tmp =  filterSIFTs(filteredSifts, norm_threshold, false, wordnet_ids(i));%TODO: look inside filterSIFTs
       filtered_sifts = cat(1, filtered_sifts, tmp);
-      trainingLabels = [trainingLabels; ((i-1) * ones(size(tmp, 1), 1))];
+      if jitter_on
+        trainingLabels = [trainingLabels; ((i-1) * ones(jitter_grid_size^2 * size(tmp, 1), 1))];
+      else
+        trainingLabels = [trainingLabels; ((i-1) * ones(size(tmp, 1), 1))];
+      end
       tmp = filterSIFTs(noisySifts, norm_threshold, false, '');%TODO change norm thresh
       noisy_sifts = cat(1, noisy_sifts, tmp);
       testingLabels = [testingLabels; ((i-1) * ones(size(tmp, 1), 1))];
@@ -69,24 +76,24 @@
   disp('Compute vocab set');
   
   allSifts = [filtered_sifts; noisy_sifts];
-  size(allSifts)
   randomSiftDescs = allSifts(randsample(size(allSifts,1), num_vocab_images));
-  size(randomSiftDescs);
   vocab =   computeVocabularySet(randomSiftDescs, K, useMeanshift);
   %load('vocabPoint50WindowSize.mat');
  
   %%
   disp('Compute histograms of sifts');
 
+  %want jitter on for this bit, to get extra training data out
   trainHistograms = sparse(computeHistograms(filtered_sifts, vocab, data_path, spatial_pyramid_levels));
+  jitter_grid_size = 1;%don't need jitter for test data
   testHistograms = sparse(computeHistograms(noisy_sifts, vocab, data_path, spatial_pyramid_levels));
 
-%%
+  %%
   %randomly permute training data:
   [train_data, train_labels] = randomizeTrainingData(trainHistograms, trainingLabels);
 
   % plug into liblinear - train
-  svm_options = ['-e 0.5 -c 1000000000 -s ' int2str(size(wordnet_ids, 2))];
+  svm_options = ['-e 0.5 -c 1000 -s ' int2str(size(wordnet_ids, 2))];
   model = train(train_labels, train_data', svm_options); 
   %model = train([training_labels(1:15)' training_labels(1:15)' training_labels(1:15)']' , [training_data(:, 1:15) training_data(1:15) training_data(1:15)]', '-e 0.1 -v 50 -s 1'); 
   %model = train(repmat(training_labels(1:150), 1, 1), repmat(training_data(:,1:150)', 1, 1), '-e 0.1 -v 30 -s 1');
@@ -123,4 +130,3 @@
   end
   % display number of findings
   size(find(detected_labels))
-  
