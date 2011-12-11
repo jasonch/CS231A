@@ -2,19 +2,19 @@
    %% constants
    % CHECK ALL THESE BEFORE RUNNING!!
   global display_sift; 
-  display_sift = false;
+  display_sift = true;
   global hist_threshold;
   hist_threshold = 0.8;
   global data_path; % top level path to where SIFT matrices images, and segLabels are stored
-  data_path = '/tmp/';
+  data_path = 'C:\Users\naranb\CS231project\CS231A\';
 
   %useMeanshift = false; K = 500; % K for kmeans
-  useMeanshift = true;  K = 0.68; % bandwidth for meanshift
+  useMeanshift = true;  K = 0.65; % bandwidth for meanshift
   norm_threshold = 4; % minimum norm to consider 
   num_chair_images = 1000;
   num_vocab_images = 2000;
 
-  spatialPyramidLevels = 3;
+  spatialPyramidLevels = 1;
   
   teapotWnid = 'n04398044';
   chairWnid  = 'n03376595';
@@ -55,7 +55,7 @@
   disp('Compute histograms of sifts');
   trainHistograms = sparse(computeHistograms(filteredSifts, vocab, data_path, spatialPyramidLevels));
   trainPosLabels = ones(size(trainHistograms,2), 1);
-  
+  %%
   testHistograms = sparse(computeHistograms(noisySifts, vocab, data_path, spatialPyramidLevels));
   testPosLabels = ones(size(testHistograms,2), 1);
   
@@ -89,7 +89,11 @@
   %% 
   % attempt to detect the object in the test image
   disp('Running detector...');
-  detected_labels = zeros(size(noisySifts, 1), sum((1:3).^2));
+  detector_levels = 2;
+  detected_labels = zeros(size(noisySifts, 1), sum((1:detector_levels).^2));
+  decision_vals   = zeros(size(noisySifts, 1), sum((1:detector_levels).^2));
   for i=1:size(noisySifts, 1)
-    detected_labels(i, :) = detectImage(noisySifts(i), model, 3, vocab); 
+    [detected_labels(i, :), decision_vals(i,:)] = detectImage(noisySifts(i).vldsift, model, detector_levels, vocab); 
   end  
+  % display number of findings
+  size(find(detected_labels))

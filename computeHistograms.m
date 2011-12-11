@@ -10,7 +10,7 @@ function histogram = computeHistograms(sifts, vocabulary, data_path, levels)
     % [histogram(:,i), sift_to_word] = computeBoWHistogram(sifts(i).vldsift.desc, vocabulary);
     histogram(:,i) = spatialHistogramWrapper(sifts(i).vldsift, vocabulary, levels);
     if (display_sift && i < 4)
-      filepath = [data_path 'images/' sifts(i).ID '.JPEG'];
+      filepath = [data_path 'images\' sifts(i).ID '.JPEG'];
       try 
           img = imread(filepath);
           [Inr, Inc, nb] = size(img);
@@ -51,7 +51,7 @@ function histogram = spatialHistogramWrapper(sifts, vocab, levels)
                 & sifts.y >= ybounds(row) ...
                 & sifts.y <  ybounds(row+1);
         [bow_histogram, ~] = computeBoWHistogram(sifts.desc(:, indices), vocab);
-        histogram(vocab_size*(gridnum-1)+1: gridnum*vocab_size) = bow_histogram ./ lv;
+        histogram(vocab_size*(gridnum-1)+1: gridnum*vocab_size) = bow_histogram;
         gridnum = gridnum+1;
       end
     end
