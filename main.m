@@ -10,11 +10,11 @@
   %useMeanshift = false; K = 500; % K for kmeans
   useMeanshift = true;  K = 0.68; %0.68; % bandwidth for meanshift
   norm_threshold = 0.3; % percentage of maximum norm
-  num_vocab_images = 35;%2000
+  num_vocab_images = 100;
   hist_threshold = 0.8;
   
   % Synset ids
-  wordnet_ids = {'n04398044', 'n02992211', 'n03255030'};%, 'n02165456'};
+  wordnet_ids = {'n04398044', 'n02992211'}%, 'n03255030'};%, 'n02165456'};
   %               teapot       cello        dumbbell
   % Paths to add:
   if (ispc)
@@ -59,8 +59,8 @@
   
   %%
   %Small tuning modification
-  filtered_sifts = [filtered_sifts; filtered_sifts(230:310)];
-  trainingLabels = [trainingLabels; trainingLabels(230:310)];
+  %filtered_sifts = [filtered_sifts; filtered_sifts(230:310)];
+  %trainingLabels = [trainingLabels; trainingLabels(230:310)];
   
   %%
   % compute vocabulary set
@@ -83,7 +83,7 @@
   [train_data, train_labels] = randomizeTrainingData(trainHistograms, trainingLabels);
 
   % plug into liblinear - train
-  svm_options = ['-e 0.5 -c 10000 -s ' int2str(size(wordnet_ids, 2))];
+  svm_options = ['-e 0.5 -c 1000000000 -s ' int2str(size(wordnet_ids, 2))];
   model = train(train_labels, train_data', svm_options); 
   %model = train([training_labels(1:15)' training_labels(1:15)' training_labels(1:15)']' , [training_data(:, 1:15) training_data(1:15) training_data(1:15)]', '-e 0.1 -v 50 -s 1'); 
   %model = train(repmat(training_labels(1:150), 1, 1), repmat(training_data(:,1:150)', 1, 1), '-e 0.1 -v 30 -s 1');
@@ -95,3 +95,16 @@
   [predicted_label, accuracy, decision_vals] = predict(test_labels, test_data', model);
   accuracy
   
+  %%
+  disp('Training num labels 0, 1, 2, ..');
+  sum(train_labels == 0)
+  sum(train_labels == 1)
+  sum(train_labels == 2)
+  disp('Test num labels 0, 1, 2, ..');
+  sum(test_labels == 0)
+  sum(test_labels == 1)
+  sum(test_labels == 2)
+  disp('Predicted num labels 0, 1, 2, ..');
+  sum(predicted_label == 0)
+  sum(predicted_label == 1)
+  sum(predicted_label == 2)  
