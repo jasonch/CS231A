@@ -14,8 +14,10 @@
   hist_threshold = 0.8;
   
   % Synset ids
-  wordnet_ids = {'n04398044', 'n02992211'}%, 'n03255030'};%, 'n02165456'};
-  %               teapot       cello        dumbbell
+  %wordnet_ids = {'n04398044', 'n02992211'}%, 'n03255030', 'n03376595'};%, 'n02165456'};
+  %               teapot       cello        dumbbell     chair 
+  wordnet_ids = {'n04398044', 'n03376595'}
+  %               reapot       chair
   % Paths to add:
   if (ispc)
     addpath('liblinear-1.8\liblinear-1.8\matlab\');
@@ -51,16 +53,17 @@
       [filteredSifts, noisySifts] = cleanImagesFilter(wordnet_id, image_vldsift);
       tmp =  filterSIFTs(filteredSifts, norm_threshold, false, wordnet_ids(i));%TODO: look inside filterSIFTs
       filtered_sifts = cat(1, filtered_sifts, tmp);
-      trainingLabels = [trainingLabels; ((i-1) * ones(size(tmp), 1))];
+      trainingLabels = [trainingLabels; ((i-1) * ones(size(tmp, 1), 1))];
       tmp = filterSIFTs(noisySifts, norm_threshold, false, '');%TODO change norm thresh
       noisy_sifts = cat(1, noisy_sifts, tmp);
-      testingLabels = [testingLabels; ((i-1) * ones(size(tmp), 1))];
+      testingLabels = [testingLabels; ((i-1) * ones(size(tmp, 1), 1))];
   end
   
   %%
   %Small tuning modification
   %filtered_sifts = [filtered_sifts; filtered_sifts(230:310)];
   %trainingLabels = [trainingLabels; trainingLabels(230:310)];
+
   
   %%
   % compute vocabulary set
