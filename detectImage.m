@@ -16,7 +16,7 @@ function detected_labels = detectImage(test_image, model, levels, vocab)
 
     % for each level, distribute the sift descriptors into their corresponding 
     % region, or bin, spatially (based on x, y)
-    x_bins = assign2bins(test_image.vldsift.x, i);
+    x_bins = assign2bins(test_image.vldsift.x, i);%TODO issue with assign2bins range
     y_bins = assign2bins(test_image.vldsift.y, i);
     for row = 1:i
       for col = 1:i

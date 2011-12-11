@@ -6,13 +6,13 @@
   global hist_threshold;
   hist_threshold = 0.8;
   global data_path; % top level path to where SIFT matrices images, and segLabels are stored
-  data_path = '/tmp/';
+  data_path = './siftmatrixes/';
 
   %useMeanshift = false; K = 500; % K for kmeans
-  useMeanshift = true;  K = 0.68; % bandwidth for meanshift
+  useMeanshift = true;  K = 0.73; % bandwidth for meanshift
   norm_threshold = 4; % minimum norm to consider 
-  num_chair_images = 1000;
-  num_vocab_images = 2000;
+  num_chair_images = 75;
+  num_vocab_images = 150;
 
   spatialPyramidLevels = 3;
   
