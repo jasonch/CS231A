@@ -4,8 +4,9 @@
   global display_sift; 
   global hist_threshold;
   global data_path; % top level path to where SIFT matrices images, and segLabels are stored
-  global jitter_on;
-  global jitter_grid_size; % number of steps to jitter x and y by
+  global jitter_grid_size; % number of steps to jitter x and y by, set to 1 to turn jitter off
+  global sp_weight_drop; %smaller sp regions should be weighted less
+  sp_weight_drop = 0.5; 
   jitter_grid_size = 3;
   display_sift = false;  
   hist_threshold = 0.8;
@@ -16,7 +17,7 @@
   
   norm_threshold = 4; % percentage of maximum norm
   num_vocab_images = 70;
-  spatial_pyramid_levels = 3;
+  spatial_pyramid_levels = 2;
 
   % Synset ids
   wordnet_ids = {'n04398044', 'n02992211', 'n03255030', 'n03376595'};%, 'n02165456'};
@@ -90,7 +91,7 @@
   [train_data, train_labels] = randomizeTrainingData(trainHistograms, trainingLabels);
 
   % plug into liblinear - train
-  svm_options = ['-e 0.5 -c 10 -s ' int2str(size(wordnet_ids, 2))];
+  svm_options = ['-e 0.5 -c 1000 -s ' int2str(size(wordnet_ids, 2))];
   model = train(train_labels, train_data', svm_options); 
   %model = train([training_labels(1:15)' training_labels(1:15)' training_labels(1:15)']' , [training_data(:, 1:15) training_data(1:15) training_data(1:15)]', '-e 0.1 -v 50 -s 1'); 
   %model = train(repmat(training_labels(1:150), 1, 1), repmat(training_data(:,1:150)', 1, 1), '-e 0.1 -v 30 -s 1');
