@@ -29,8 +29,8 @@ function [detected_labels, decision_vals] = detectImage(test_image, model, level
 
     % for each level, distribute the sift descriptors into their corresponding 
     % region, or bin, spatially (based on x, y)
-    xbounds = linspace(minX,maxX+0.01, i+1);
-    ybounds = linspace(minY,maxY+0.01, i+1);
+    xbounds = linspace(0,1, i+1);
+    ybounds = linspace(0,1, i+1);
     
     for row = 1:i
       for col = 1:i
@@ -52,11 +52,9 @@ function [detected_labels, decision_vals] = detectImage(test_image, model, level
   end % end level
   
   % run SVM on the regions to get prediction for each region'
-  [predictions, accuracy, dec_vals] = predict(zeros(size(bins_all_levels,1),1), sparse(bins_all_levels), model);
+  [detected_labels, accuracy, decision_vals] = predict(zeros(size(bins_all_levels,1),1), sparse(bins_all_levels), model);
   %detected_labels(vocab_size*(i-1)^2+1:vocab_size*i^2) = predictions;
   %decision_vals(vocab_size*(i-1)^2+1:vocab_size*i^2) = dec_vals;
-  detected_labels = [detected_labels; predictions];
-  decision_vals = [decision_vals; dec_vals];
   
   % surppress uncertain detections, unless it's the highest detection
   % max(decision_vals)

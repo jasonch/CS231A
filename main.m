@@ -2,104 +2,128 @@
    %% constants
    % CHECK ALL THESE BEFORE RUNNING!!
   global display_sift; 
-  display_sift = true;
   global hist_threshold;
-  hist_threshold = 0.8;
   global data_path; % top level path to where SIFT matrices images, and segLabels are stored
   global jitter_on;
-  global jitter_grid_size;
-  
-  data_path = './siftmatrixes/';
-  jitter_on = true;
+  global jitter_grid_size; % number of steps to jitter x and y by
   jitter_grid_size = 3;
+  display_sift = false;  
+  hist_threshold = 0.8;
   
+  % Parameters (TODO: tune later)
   %useMeanshift = false; K = 500; % K for kmeans
   useMeanshift = true;  K = 0.73; % bandwidth for meanshift
   
-  norm_threshold = 4; % minimum norm to consider 
-  num_chair_images = 40;
-  num_vocab_images = 80;
+  norm_threshold = 4; % percentage of maximum norm
+  num_vocab_images = 70;
+  spatial_pyramid_levels = 3;
 
-  spatialPyramidLevels = 1;
+  % Synset ids
+  wordnet_ids = {'n04398044', 'n02992211', 'n03255030', 'n03376595'};%, 'n02165456'};
+  %               teapot       cello        dumbbell     chair 
+  %wordnet_ids = {'n04398044', 'n03376595'}
+  %                teapot       chair
+  % Paths to add:
+  addPathByPlatform('liblinear-1.8/liblinear-1.8/matlab/');
+  addPathByPlatform('normalized_cut/');
+  addPathByPlatform('siftmatrixes/');
+  %data_path = '/tmp/';
+  data_path = 'siftmatrixes\';
   
-  teapotWnid = 'n04398044';
-  chairWnid  = 'n03376595';
-
    %%
   % segment images
   %disp('Segmenting images...');
-  addPathByPlatform('normalized_cut/');
   %segmentSynSet([data_path 'images/'], [data_path 'segLabels/'], teapotWnid);
  
   
   %%
   % filter to only images we want and only features in the segment
   % and discard bottom 30% of the features by norm magnitude
-  image_vldsift = loadSifts(data_path, teapotWnid); 
-
-  disp('Filtering clean and noisy sift features...');
-  [filteredSifts, noisySifts] = cleanImagesFilter(teapotWnid, image_vldsift);
-  filteredSifts = filterSIFTs(filteredSifts, norm_threshold, false, teapotWnid);
-  noisySifts    = filterSIFTs(noisySifts   , norm_threshold, false, '');
   
-  %% load negative images  
-  chairSifts = loadSifts(data_path, chairWnid);
-  chairSifts = chairSifts(randsample(size(chairSifts,1), num_chair_images));
-  chairSifts = filterSIFTs(chairSifts, norm_threshold, false, '');
+  filtered_sifts = [];
+  noisy_sifts = [];
+  trainingLabels = [];
+  testingLabels = [];
+  
+  disp('Filtering clean and noisy sift features...');
+  for i=1:size(wordnet_ids, 2)
+      wordnet_id = char(wordnet_ids(i));
+      image_vldsift = loadSifts(data_path, wordnet_id);
+      [filteredSifts, noisySifts] = cleanImagesFilter(wordnet_id, image_vldsift);
+      tmp =  filterSIFTs(filteredSifts, norm_threshold, false, wordnet_ids(i));%TODO: look inside filterSIFTs
+      filtered_sifts = cat(1, filtered_sifts, tmp);
+      if jitter_on
+        trainingLabels = [trainingLabels; ((i-1) * ones(jitter_grid_size^2 * size(tmp, 1), 1))];
+      else
+        trainingLabels = [trainingLabels; ((i-1) * ones(size(tmp, 1), 1))];
+      end
+      tmp = filterSIFTs(noisySifts, norm_threshold, false, '');%TODO change norm thresh
+      noisy_sifts = cat(1, noisy_sifts, tmp);
+      testingLabels = [testingLabels; ((i-1) * ones(size(tmp, 1), 1))];
+  end
+  
+  %%
+  %Small tuning modification
+  %filtered_sifts = [filtered_sifts; filtered_sifts(230:310)];
+  %trainingLabels = [trainingLabels; trainingLabels(230:310)];
 
+  
   %%
   % compute vocabulary set
   disp('Compute vocab set');
-  allSifts = [filteredSifts; noisySifts; chairSifts];
-  size(allSifts)
+  
+  allSifts = [filtered_sifts; noisy_sifts];
   randomSiftDescs = allSifts(randsample(size(allSifts,1), num_vocab_images));
-  size(randomSiftDescs);
   vocab =   computeVocabularySet(randomSiftDescs, K, useMeanshift);
   %load('vocabPoint50WindowSize.mat');
  
   %%
   disp('Compute histograms of sifts');
-  trainHistograms = sparse(computeHistograms(filteredSifts, vocab, data_path, spatialPyramidLevels));
-  trainPosLabels = ones(size(trainHistograms,2), 1);
+
+  %want jitter on for this bit, to get extra training data out
+  trainHistograms = sparse(computeHistograms(filtered_sifts, vocab, data_path, spatial_pyramid_levels));
+  jitter_grid_size = 1;%don't need jitter for test data
+  testHistograms = sparse(computeHistograms(noisy_sifts, vocab, data_path, spatial_pyramid_levels));
+
   %%
-  testHistograms = sparse(computeHistograms(noisySifts, vocab, data_path, spatialPyramidLevels));
-  testPosLabels = ones(size(testHistograms,2), 1);
-  
-  %%
-  % compute histogram for negative examples
-  % use unrelated synset for negative examples. Use the same number of negative examples
-  % as positive exapmles
-  num_pos_examples = size(trainHistograms,2);
-  chairHistograms = sparse(computeHistograms(chairSifts, vocab, data_path, spatialPyramidLevels));
-  trainChairHists = chairHistograms(:,1:num_pos_examples);
-  trainNegLabels = zeros(num_pos_examples, 1);  
-  testChairHists = chairHistograms(:, (1+num_pos_examples):num_chair_images);
-  testNegLabels = zeros(num_chair_images-num_pos_examples, 1);
-%%
   %randomly permute training data:
-  [training_data, training_labels] = randomizeTrainingData([trainHistograms trainChairHists], [trainPosLabels; trainNegLabels]);
+  [train_data, train_labels] = randomizeTrainingData(trainHistograms, trainingLabels);
 
   % plug into liblinear - train
-  addPathByPlatform('liblinear-1.8\liblinear-1.8\matlab\');
-  %model = train(training_labels, training_data', '-e 0.1 -v 100 -s 1')
-  model = train(training_labels, training_data');
+  svm_options = ['-e 0.5 -c 10 -s ' int2str(size(wordnet_ids, 2))];
+  model = train(train_labels, train_data', svm_options); 
   %model = train([training_labels(1:15)' training_labels(1:15)' training_labels(1:15)']' , [training_data(:, 1:15) training_data(1:15) training_data(1:15)]', '-e 0.1 -v 50 -s 1'); 
   %model = train(repmat(training_labels(1:150), 1, 1), repmat(training_data(:,1:150)', 1, 1), '-e 0.1 -v 30 -s 1');
+  size(trainHistograms)
   
   %%
   %randomly permute test data:
-  [test_data, test_labels] = randomizeTrainingData([testHistograms testChairHists], [testPosLabels; testNegLabels]);
+  [test_data, test_labels] = randomizeTrainingData(testHistograms, testingLabels);
   [predicted_label, accuracy, decision_vals] = predict(test_labels, test_data', model);
   accuracy
 
+  %%
+  disp('Training num labels 0, 1, 2, ..');
+  sum(train_labels == 0)
+  sum(train_labels == 1)
+  sum(train_labels == 2)
+  disp('Test num labels 0, 1, 2, ..');
+  sum(test_labels == 0)
+  sum(test_labels == 1)
+  sum(test_labels == 2)
+  disp('Predicted num labels 0, 1, 2, ..');
+  sum(predicted_label == 0)
+  sum(predicted_label == 1)
+  sum(predicted_label == 2)  
+  
   %% 
   % attempt to detect the object in the test image
   disp('Running detector...');
   detector_levels = 2;
   detected_labels = zeros(size(noisySifts, 1), sum((1:detector_levels).^2));
-  decision_vals   = zeros(size(noisySifts, 1), sum((1:detector_levels).^2));
+  decision_vals   = zeros(size(noisySifts, 1), sum((1:detector_levels).^2), size(wordnet_ids,2));
   for i=1:size(noisySifts, 1)
-    [detected_labels(i, :), decision_vals(i,:)] = detectImage(noisySifts(i).vldsift, model, detector_levels, vocab); 
+    [detected_labels(i, :), decision_vals(i,:,:)] = detectImage(noisySifts(i).vldsift, model, detector_levels, vocab); 
   end  
   % display number of findings
   size(find(detected_labels))
