@@ -15,29 +15,23 @@ function [detected_labels, decision_vals] = detectImage(test_image, model, level
   
   vocab_size = size(vocab,1);
   
-  % find bounding box of our object
-  minX = min(test_image.x);
-  maxX = max(test_image.x);
-  minY = min(test_image.y);
-  maxY = max(test_image.y);
-
   bins_all_levels = zeros(sum((1:levels).^2), vocab_size);
   
   for i=1:levels
-
-    bins = zeros(i*i, size(vocab, 1));
-
     % for each level, distribute the sift descriptors into their corresponding 
     % region, or bin, spatially (based on x, y)
-    xbounds = linspace(0,1, i+1);
-    ybounds = linspace(0,1, i+1);
+    bounds = linspace(0,1, i+1);
+    % overlap amount
+    overlap = 1/(4*i);
+    bounds_2 = linspace(overlap, 1-overlap, i); % offsetted bounds to have overlapping grids
     
-    for row = 1:i
-      for col = 1:i
-        indices = test_image.x >= xbounds(col) ...
-                & test_image.x <  xbounds(col+1) ...
-                & test_image.y >= ybounds(row) ...
-                & test_image.y <  ybounds(row+1);
+    bins = zeros(i*i, size(vocab, 1));    
+    for col = 1:i
+      for row = 1:i
+        indices = test_image.x >= bounds(col) - overlap ...
+                & test_image.x <= bounds(col+1) + overlap ...
+                & test_image.y >= bounds(row) - overlap...
+                & test_image.y <= bounds(row+1) + overlap;
 
         binDescs = test_image.desc(:, indices);
         if (size(binDescs, 2) == 0)
@@ -49,6 +43,7 @@ function [detected_labels, decision_vals] = detectImage(test_image, model, level
     end
     
     bins_all_levels(sum((1:i-1).^2)+1: sum((1:i).^2) , :) = bins;
+    
   end % end level
   
   % run SVM on the regions to get prediction for each region'

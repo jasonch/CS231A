@@ -10,15 +10,17 @@
   %useMeanshift = false; K = 500; % K for kmeans
   useMeanshift = true;  K = 0.68; % bandwidth for meanshift
   
-  norm_threshold = 4; % percentage of maximum norm
+  norm_threshold = 0; % percentage of maximum norm
   num_vocab_images = 1000;
   hist_threshold = 0.8;
   
-  spatial_pyramid_levels = 3;
+  spatial_pyramid_levels = 2;
 
   % Synset ids
-  wordnet_ids = {'n04398044', 'n02992211', 'n03255030', 'n03376595'};%, 'n02165456'};
+  wordnet_ids = {'n04398044', 'n02992211', 'n03255030', 'n03376595'};
   %               teapot       cello        dumbbell     chair 
+  %wordnet_ids = {'n04398044', 'n02992211', 'n03376595'};
+  %               teapot       cello         chair 
   %wordnet_ids = {'n04398044', 'n03376595'}
   %                teapot       chair
   % Paths to add:
@@ -114,11 +116,11 @@
   % attempt to detect the object in the test image
   disp('Running detector...');
   detector_levels = 2;
-  detected_labels = zeros(size(noisySifts, 1), sum((1:detector_levels).^2));
-  decision_vals   = zeros(size(noisySifts, 1), sum((1:detector_levels).^2), size(wordnet_ids,2));
-  for i=1:size(noisySifts, 1)
-    [detected_labels(i, :), decision_vals(i,:,:)] = detectImage(noisySifts(i).vldsift, model, detector_levels, vocab); 
-  end  
+  detected_labels = zeros(size(noisy_sifts, 1), sum((1:detector_levels).^2));
+  decision_vals   = zeros(size(noisy_sifts, 1), sum((1:detector_levels).^2), size(wordnet_ids,2));
+  for i=1:size(noisy_sifts, 1)
+    [detected_labels(i, :), decision_vals(i,:,:)] = detectImage(noisy_sifts(i).vldsift, model, detector_levels, vocab); 
+  end
   % display number of findings
   size(find(detected_labels))
   

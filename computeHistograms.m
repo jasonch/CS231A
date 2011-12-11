@@ -51,7 +51,7 @@ function histogram = spatialHistogramWrapper(sifts, vocab, levels)
                 & sifts.y >= ybounds(row) ...
                 & sifts.y <  ybounds(row+1);
         [bow_histogram, ~] = computeBoWHistogram(sifts.desc(:, indices), vocab);
-        histogram(vocab_size*(gridnum-1)+1: gridnum*vocab_size) = bow_histogram;
+        histogram(vocab_size*(gridnum-1)+1: gridnum*vocab_size) = bow_histogram ./ (lv^2);
         gridnum = gridnum+1;
       end
     end
