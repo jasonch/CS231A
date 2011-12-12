@@ -3,14 +3,14 @@
    % CHECK ALL THESE BEFORE RUNNING!!
   global display_sift; 
   global hist_threshold;
-  global data_path; % top level path to where SIFT matrices images, and segLabels are stored
   global jitter_grid_size; % number of steps to jitter x and y by, set to 1 to turn jitter off
   global sp_weight_drop; %smaller sp regions should be weighted less
   sp_weight_drop = 0.5; 
   jitter_grid_size = 3;
   display_sift = false;  
   hist_threshold = 0.8;
-  
+  jitter_on = true;
+ 
   % Parameters (TODO: tune later)
   %useMeanshift = false; K = 500; % K for kmeans
   useMeanshift = true;  K = 0.73; % bandwidth for meanshift
@@ -20,18 +20,16 @@
   spatial_pyramid_levels = 2;
 
   % Synset ids
-  wordnet_ids = {'n04398044', 'n02992211', 'n03255030', 'n03376595'};
+  %wordnet_ids = {'n04398044', 'n02992211', 'n03255030', 'n03376595'};
   %               teapot       cello        dumbbell     chair 
   %wordnet_ids = {'n04398044', 'n02992211', 'n03376595'};
   %               teapot       cello         chair 
-  %wordnet_ids = {'n04398044', 'n03376595'}
+  wordnet_ids = {'n04398044', 'n03376595'}
   %                teapot       chair
   % Paths to add:
   addPathByPlatform('liblinear-1.8/liblinear-1.8/matlab/');
   addPathByPlatform('normalized_cut/');
-  addPathByPlatform('siftmatrixes/');
-  %data_path = '/tmp/';
-  data_path = 'siftmatrixes\';
+  addPathByPlatform('/tmp/'); % location for sift feature matrices
   
    %%
   % segment images
@@ -51,7 +49,7 @@
   disp('Filtering clean and noisy sift features...');
   for i=1:size(wordnet_ids, 2)
       wordnet_id = char(wordnet_ids(i));
-      image_vldsift = loadSifts(data_path, wordnet_id);
+      image_vldsift = loadSifts(wordnet_id);
       [filteredSifts, noisySifts] = cleanImagesFilter(wordnet_id, image_vldsift);
       tmp =  filterSIFTs(filteredSifts, norm_threshold, false, wordnet_ids(i));%TODO: look inside filterSIFTs
       filtered_sifts = cat(1, filtered_sifts, tmp);
@@ -84,9 +82,9 @@
   disp('Compute histograms of sifts');
 
   %want jitter on for this bit, to get extra training data out
-  trainHistograms = sparse(computeHistograms(filtered_sifts, vocab, data_path, spatial_pyramid_levels));
+  trainHistograms = sparse(computeHistograms(filtered_sifts, vocab, spatial_pyramid_levels));
   jitter_grid_size = 1;%don't need jitter for test data
-  testHistograms = sparse(computeHistograms(noisy_sifts, vocab, data_path, spatial_pyramid_levels));
+  testHistograms = sparse(computeHistograms(noisy_sifts, vocab, spatial_pyramid_levels));
 
   %%
   %randomly permute training data:
@@ -124,7 +122,8 @@
   disp('Running detector...');
   detector_levels = 2;
   detected_labels = zeros(size(noisy_sifts, 1), sum((1:detector_levels).^2));
-  decision_vals   = zeros(size(noisy_sifts, 1), sum((1:detector_levels).^2), size(wordnet_ids,2));
+  decision_vals   = zeros(size(noisy_sifts, 1), sum((1:detector_levels).^2)); %, size(wordnet_ids,2));
+  size(decision_vals)
   for i=1:size(noisy_sifts, 1)
     [detected_labels(i, :), decision_vals(i,:,:)] = detectImage(noisy_sifts(i).vldsift, model, detector_levels, vocab); 
   end
