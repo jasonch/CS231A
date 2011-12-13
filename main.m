@@ -13,18 +13,18 @@
  
   % Parameters (TODO: tune later)
   %useMeanshift = false; K = 500; % K for kmeans
-  useMeanshift = true;  K = 0.73; % bandwidth for meanshift
+  useMeanshift = true;  K = 0.7; % bandwidth for meanshift
   
-  norm_threshold = 4; % percentage of maximum norm
-  num_vocab_images = 70;
-  spatial_pyramid_levels = 2;
+  norm_threshold = 3; % minimum SIFT norm to be considered 
+  num_vocab_images = 1000;
+  spatial_pyramid_levels = 1;
 
   % Synset ids
-  %wordnet_ids = {'n04398044', 'n02992211', 'n03255030', 'n03376595'};
+  wordnet_ids = {'n04398044', 'n02992211', 'n03255030', 'n03376595'}
   %               teapot       cello        dumbbell     chair 
   %wordnet_ids = {'n04398044', 'n02992211', 'n03376595'};
   %               teapot       cello         chair 
-  wordnet_ids = {'n04398044', 'n03376595'}
+  %wordnet_ids = {'n04398044', 'n03376595'}
   %                teapot       chair
   % Paths to add:
   addPathByPlatform('liblinear-1.8/liblinear-1.8/matlab/');
@@ -120,12 +120,19 @@
   %% 
   % attempt to detect the object in the test image
   disp('Running detector...');
-  detector_levels = 2;
+  detector_levels = 3;
   detected_labels = zeros(size(noisy_sifts, 1), sum((1:detector_levels).^2));
-  decision_vals   = zeros(size(noisy_sifts, 1), sum((1:detector_levels).^2)); %, size(wordnet_ids,2));
+  decision_vals   = zeros(size(noisy_sifts, 1), sum((1:detector_levels).^2), size(wordnet_ids,2));
   size(decision_vals)
   for i=1:size(noisy_sifts, 1)
     [detected_labels(i, :), decision_vals(i,:,:)] = detectImage(noisy_sifts(i).vldsift, model, detector_levels, vocab); 
   end
   % display number of findings
-  size(find(detected_labels))
+  [rows, ~] = find(detected_labels == 1);
+  rows = unique(rows);
+  ['found ' num2str(size(rows,1)) ' teapots' ...
+  ' of ' num2str(size(find(rows < 1367), 1)) ' true positive']
+
+  % plot first few bounding boxes
+  visualizeBBoxes(noisy_sifts, detected_labels,10, 1);
+

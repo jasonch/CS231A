@@ -8,7 +8,7 @@ function filtered_sift = filterSIFTs(sifts, normThresh, shouldFilterSegment, syn
 
   for ind = 1:size(sifts,1)
     % filter out features with low norm
-    normFilter = (filtered_sift(ind).vldsift.norm > normThresh);
+    normFilter = (filtered_sift(ind).vldsift.norm >= normThresh);
     filtered_sift(ind).vldsift.x = filtered_sift(ind).vldsift.x(normFilter);
     filtered_sift(ind).vldsift.y = filtered_sift(ind).vldsift.y(normFilter);
     filtered_sift(ind).vldsift.scale = filtered_sift(ind).vldsift.scale(normFilter);
