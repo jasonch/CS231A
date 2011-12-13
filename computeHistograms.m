@@ -37,6 +37,7 @@ end
 function histogram = spatialHistogramWrapper(sifts, vocab, levels) 
   global jitter_grid_size;
   global sp_weight_drop;
+  global jitter_amount;
   
   vocab_size = size(vocab,1);
   histogram = zeros(vocab_size*sum(4.^(0:levels-1)), jitter_grid_size^2);
@@ -55,8 +56,8 @@ function histogram = spatialHistogramWrapper(sifts, vocab, levels)
           for lv=1:levels
             xbounds = linspace(minX,maxX+0.1,2^(lv-1)+1);
             ybounds = linspace(minY,maxY+0.1,2^(lv-1)+1);
-            jitter_x = i * (maxX - minX) * 2^(1-lv) * (2^-3);
-            jitter_y = j * (maxY - minY) * 2^(1-lv) * (2^-3);
+            jitter_x = i * (maxX - minX) * 2^(1-lv) * jitter_amount;
+            jitter_y = j * (maxY - minY) * 2^(1-lv) * jitter_amount;
             jitter_idx = (i+jitter_half_size)*jitter_grid_size + j + jitter_half_size + 1;
             for col=1:2^(lv-1)
               for row=1:2^(lv-1)
@@ -64,8 +65,8 @@ function histogram = spatialHistogramWrapper(sifts, vocab, levels)
                         & (sifts.x + jitter_x) <  xbounds(col+1) ...
                         & (sifts.y + jitter_y) >= ybounds(row) ...
                         & (sifts.y + jitter_y) <  ybounds(row+1);
-                [bow_histogram,~] = computeBoWHistogram(sifts.desc(:, indices), vocab);
-                histogram(vocab_size*(gridnum-1)+1: gridnum*vocab_size, jitter_idx) = bow_histogram * sp_weight_drop^(lv-1);;
+                [bow_histogram, ~] = computeBoWHistogram(sifts.desc(:, indices), vocab);
+                histogram(vocab_size*(gridnum-1)+1: gridnum*vocab_size, jitter_idx) = bow_histogram * sp_weight_drop^(lv-1);
                 gridnum = gridnum+1;
               end
             end
