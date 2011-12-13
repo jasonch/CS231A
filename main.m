@@ -2,14 +2,20 @@
    %% constants
    % CHECK ALL THESE BEFORE RUNNING!!
   global display_sift; 
+  global display_clusters;
+  global display_histograms;
   global hist_threshold;
   global jitter_grid_size; % number of steps to jitter x and y by, set to 1 to turn jitter off
   global sp_weight_drop; %smaller sp regions should be weighted less
   global jitter_amount; %proportion of jitter amount to the grid it's jittering, see computeHistogram
+  global kmeans_max_itrs;
+  kmeans_max_itrs = 90;
   jitter_amount = 0.0625;
   sp_weight_drop = 0.5; 
   jitter_grid_size = 3;
-  display_sift = false;
+  display_sift = true;  
+  display_clusters = true;
+  display_histograms = true;
   hist_threshold = 0.8;
   jitter_on = true;
  
@@ -90,8 +96,17 @@
   %%
   %visualize sifts on image
   if display_sift
-    displaySifts(trainHistograms);
+    displaySifts(filtered_sifts);
     %displaySifts(testHistograms);
+  end
+  %%
+  if display_clusters
+     displayClusters(vocab); 
+  end
+  %%
+  if display_histograms
+     displayHistograms(trainHistograms); 
+     %displayHistograms(testHistograms);
   end
   
   %%

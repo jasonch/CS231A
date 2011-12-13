@@ -1,5 +1,7 @@
 function displaySifts(sifts)
 
+  displaySifts2(sifts);
+  %{
   for i=1:20%size(sifts,1)
     filepath = [sifts(i).ID '.JPEG'];
     try 
@@ -18,19 +20,20 @@ function displaySifts(sifts)
     end
     pause;
   end
-  
+  %}
 end
 
 function displaySifts2(sifts)
 
-  for i=1:20%size(sifts,1)
+  for i=1:200%size(sifts,1)
     img=imread([sifts(i).ID '.JPEG']);
     figure; imagesc(img); hold on;
     [Inr, Inc, ~] = size(img);
-    plot(sifts(i).vldsift.x * Inc, sifts(i).vldsift.y * Inr, 'none.dr')%'b+')  
+    plot(sifts(i).vldsift.x * Inc, sifts(i).vldsift.y * Inr, 'b+')  
     hold off;
     pause;
     close;
+    i
   end
   
 end
