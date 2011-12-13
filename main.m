@@ -6,6 +6,8 @@
   global data_path; % top level path to where SIFT matrices images, and segLabels are stored
   global jitter_grid_size; % number of steps to jitter x and y by, set to 1 to turn jitter off
   global sp_weight_drop; %smaller sp regions should be weighted less
+  global jitter_amount; %proportion of jitter amount to the grid it's jittering, see computeHistogram
+  jitter_amount = 0.125;
   sp_weight_drop = 0.5; 
   jitter_grid_size = 3;
   display_sift = false;  
@@ -13,10 +15,10 @@
   
   % Parameters (TODO: tune later)
   %useMeanshift = false; K = 500; % K for kmeans
-  useMeanshift = true;  K = 0.73; % bandwidth for meanshift
+  useMeanshift = true;  K = 0.70; % bandwidth for meanshift
   
-  norm_threshold = 4; % percentage of maximum norm
-  num_vocab_images = 70;
+  norm_threshold = 0; % percentage of maximum norm
+  num_vocab_images = 1500;
   spatial_pyramid_levels = 2;
 
   % Synset ids
@@ -53,11 +55,7 @@
       [filteredSifts, noisySifts] = cleanImagesFilter(wordnet_id, image_vldsift);
       tmp =  filterSIFTs(filteredSifts, norm_threshold, false, wordnet_ids(i));%TODO: look inside filterSIFTs
       filtered_sifts = cat(1, filtered_sifts, tmp);
-      if jitter_on
-        trainingLabels = [trainingLabels; ((i-1) * ones(jitter_grid_size^2 * size(tmp, 1), 1))];
-      else
-        trainingLabels = [trainingLabels; ((i-1) * ones(size(tmp, 1), 1))];
-      end
+      trainingLabels = [trainingLabels; ((i-1) * ones(jitter_grid_size^2 * size(tmp, 1), 1))];
       tmp = filterSIFTs(noisySifts, norm_threshold, false, '');%TODO change norm thresh
       noisy_sifts = cat(1, noisy_sifts, tmp);
       testingLabels = [testingLabels; ((i-1) * ones(size(tmp, 1), 1))];
@@ -108,14 +106,17 @@
   sum(train_labels == 0)
   sum(train_labels == 1)
   sum(train_labels == 2)
+  sum(train_labels == 3)  
   disp('Test num labels 0, 1, 2, ..');
   sum(test_labels == 0)
   sum(test_labels == 1)
   sum(test_labels == 2)
+  sum(test_labels == 3)  
   disp('Predicted num labels 0, 1, 2, ..');
   sum(predicted_label == 0)
   sum(predicted_label == 1)
   sum(predicted_label == 2)  
+  sum(predicted_label == 3)   
   
   %% 
   % attempt to detect the object in the test image
