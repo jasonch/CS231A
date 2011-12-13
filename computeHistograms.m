@@ -1,7 +1,7 @@
 % this function computes histograms for each image in SIFT and returns a 
 % k x n matrix, where k is the number of vocabulary and n is the number of images
 
-function histogram = computeHistograms(sifts, vocabulary, data_path, levels)
+function histogram = computeHistograms(sifts, vocabulary, levels)
   global display_sift;
   global jitter_grid_size;
   
@@ -14,7 +14,7 @@ function histogram = computeHistograms(sifts, vocabulary, data_path, levels)
     histogram(:,hist_idx_range) = spatialHistogramWrapper(sifts(i).vldsift, vocabulary, levels);
     i
     if (display_sift && i < 4)
-      filepath = [data_path 'images\' sifts(i).ID '.JPEG'];
+      filepath = ['images\' sifts(i).ID '.JPEG'];
       try 
           img = imread(filepath);
           [Inr, Inc, nb] = size(img);
