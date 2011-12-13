@@ -6,7 +6,7 @@
 % bandwidth if using meanshift
 
 function vocabulary = computeVocabularySet(sifts, k, useMeanshift)
-
+  global kmeans_max_itrs;
   % concat features from both the sift objects passed in
   siftMatrix = convertSIFT2Matrix(sifts);
 
@@ -21,7 +21,7 @@ function vocabulary = computeVocabularySet(sifts, k, useMeanshift)
       [vocabulary, ~, ~] = MeanShiftCluster(siftMatrix', k, false);
       vocabulary = vocabulary';
   else
-      opts =statset('Display','iter', 'MaxIter', 110);%switch iter to final
+      opts =statset('Display','iter', 'MaxIter', kmeans_max_itrs);%switch iter to final
       [~, vocabulary] = kmeans(siftMatrix, k, 'emptyaction', 'drop',...
                                'options', opts);
       % remove dropped clusters
