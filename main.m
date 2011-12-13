@@ -6,7 +6,7 @@
   global jitter_grid_size; % number of steps to jitter x and y by, set to 1 to turn jitter off
   global sp_weight_drop; %smaller sp regions should be weighted less
   global jitter_amount; %proportion of jitter amount to the grid it's jittering, see computeHistogram
-  jitter_amount = 0.125;
+  jitter_amount = 0.0625;
   sp_weight_drop = 0.5; 
   jitter_grid_size = 3;
   display_sift = false;  
@@ -17,21 +17,21 @@
   %useMeanshift = false; K = 500; % K for kmeans
   useMeanshift = true;  K = 0.70; % bandwidth for meanshift
   
-  norm_threshold = 0; % percentage of maximum norm
+  norm_threshold = 4.5; % percentage of maximum norm
   num_vocab_images = 1500;
   spatial_pyramid_levels = 2;
 
   % Synset ids
-  %wordnet_ids = {'n04398044', 'n02992211', 'n03255030', 'n03376595'};
+  wordnet_ids = {'n04398044', 'n02992211', 'n03255030', 'n03376595'};
   %               teapot       cello        dumbbell     chair 
   %wordnet_ids = {'n04398044', 'n02992211', 'n03376595'};
   %               teapot       cello         chair 
-  wordnet_ids = {'n04398044', 'n03376595'}
+  %wordnet_ids = {'n04398044', 'n03376595'}
   %                teapot       chair
   % Paths to add:
   addPathByPlatform('liblinear-1.8/liblinear-1.8/matlab/');
   addPathByPlatform('normalized_cut/');
-  addPathByPlatform('/tmp/'); % location for sift feature matrices
+  addPathByPlatform('siftmatrixes/'); % location for sift feature matrices
   
    %%
   % segment images
@@ -78,7 +78,7 @@
  
   %%
   disp('Compute histograms of sifts');
-
+  vocab(1,:) = 100000*ones(1,128);
   %want jitter on for this bit, to get extra training data out
   trainHistograms = sparse(computeHistograms(filtered_sifts, vocab, spatial_pyramid_levels));
   jitter_grid_size = 1;%don't need jitter for test data
@@ -89,11 +89,10 @@
   [train_data, train_labels] = randomizeTrainingData(trainHistograms, trainingLabels);
 
   % plug into liblinear - train
-  svm_options = ['-e 0.5 -c 1000 -s ' int2str(size(wordnet_ids, 2))];
+  svm_options = ['-e 0.5 -c 100000 -s ' int2str(size(wordnet_ids, 2))];
   model = train(train_labels, train_data', svm_options); 
   %model = train([training_labels(1:15)' training_labels(1:15)' training_labels(1:15)']' , [training_data(:, 1:15) training_data(1:15) training_data(1:15)]', '-e 0.1 -v 50 -s 1'); 
   %model = train(repmat(training_labels(1:150), 1, 1), repmat(training_data(:,1:150)', 1, 1), '-e 0.1 -v 30 -s 1');
-  size(trainHistograms)
   
   %%
   %randomly permute test data:
