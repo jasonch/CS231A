@@ -47,7 +47,7 @@ function [detected_labels, decision_vals] = detectImage(test_image, model, level
   end % end level
   
   % run SVM on the regions to get prediction for each region'
-  [detected_labels, ~, decision_vals] = predict(zeros(size(bins_all_levels,1),1), sparse(bins_all_levels), model);
+  [detected_labels, ~, decision_vals] = predict(ones(size(bins_all_levels,1),1), sparse(bins_all_levels), model);
   %detected_labels(vocab_size*(i-1)^2+1:vocab_size*i^2) = predictions;
   %decision_vals(vocab_size*(i-1)^2+1:vocab_size*i^2) = dec_vals;
   

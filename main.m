@@ -129,12 +129,19 @@
   %% 
   % attempt to detect the object in the test image
   disp('Running detector...');
-  detector_levels = 2;
+  detector_levels = 3;
   detected_labels = zeros(size(noisy_sifts, 1), sum((1:detector_levels).^2));
-  decision_vals   = zeros(size(noisy_sifts, 1), sum((1:detector_levels).^2)); %, size(wordnet_ids,2));
+  decision_vals   = zeros(size(noisy_sifts, 1), sum((1:detector_levels).^2), size(wordnet_ids,2));
   size(decision_vals)
   for i=1:size(noisy_sifts, 1)
     [detected_labels(i, :), decision_vals(i,:,:)] = detectImage(noisy_sifts(i).vldsift, model, detector_levels, vocab); 
   end
   % display number of findings
-  size(find(detected_labels))
+  [rows, ~] = find(detected_labels == 1);
+  rows = unique(rows);
+  ['found ' num2str(size(rows,1)) ' teapots' ...
+  ' of ' num2str(size(find(rows < 1367), 1)) ' true positive']
+
+  % plot first few bounding boxes
+  visualizeBBoxes(noisy_sifts, detected_labels,10, 1);
+
