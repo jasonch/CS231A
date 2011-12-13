@@ -28,12 +28,15 @@
   spatial_pyramid_levels = 2;
 
   % Synset ids
-  wordnet_ids = {'n04398044', 'n02992211', 'n03255030', 'n03376595'};
+  wordnet_ids = {'n04398044', 'n02992211', 'n03255030', 'n03376595',...
+                 'n04086273', 'n04141076', 'n04148054', 'n04462240'};
   %               teapot       cello        dumbbell     chair 
   %wordnet_ids = {'n04398044', 'n02992211', 'n03376595'};
   %               teapot       cello         chair 
   %wordnet_ids = {'n04398044', 'n03376595'}
   %                teapot       chair
+  % teapot - n04398044; cello - n02992211; dumbbell - n03255030; chair - n03376595;
+  % revolver - n04086273; saxophone - n04141076; scissors - n04148054; toyshop: n04462240
   % Paths to add:
   addPathByPlatform('liblinear-1.8/liblinear-1.8/matlab/');
   addPathByPlatform('normalized_cut/');
