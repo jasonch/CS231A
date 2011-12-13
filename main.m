@@ -42,6 +42,7 @@
   addPathByPlatform('normalized_cut/');
   addPathByPlatform('images/');
   addPathByPlatform('siftmatrixes/'); % location for sift feature matrices
+  addPathByPlatform('/tmp/'); % location for sift feature matrices
   
    %%
   % segment images
@@ -161,5 +162,5 @@
   ' of ' num2str(size(find(rows < 1367), 1)) ' true positive']
 
   % plot first few bounding boxes
-  visualizeBBoxes(noisy_sifts, detected_labels,10, 1);
+  %visualizeBBoxes(noisy_sifts, detected_labels,10, 1);
 
