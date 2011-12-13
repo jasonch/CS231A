@@ -13,9 +13,9 @@
   jitter_amount = 0.0625;
   sp_weight_drop = 0.5; 
   jitter_grid_size = 3;
-  display_sift = true;  
-  display_clusters = true;
-  display_histograms = true;
+  display_sift = false;  
+  display_clusters = false;
+  display_histograms = false;
   hist_threshold = 0.8;
   jitter_on = true;
  
@@ -39,6 +39,7 @@
   addPathByPlatform('normalized_cut/');
   addPathByPlatform('images/');
   addPathByPlatform('siftmatrixes/'); % location for sift feature matrices
+  addPathByPlatform('/tmp/'); % location for sift feature matrices
   
    %%
   % segment images
@@ -60,10 +61,10 @@
       wordnet_id = char(wordnet_ids(i));
       image_vldsift = loadSifts(wordnet_id);
       [filteredSifts, noisySifts] = cleanImagesFilter(wordnet_id, image_vldsift);
-      tmp =  filterSIFTs(filteredSifts, norm_threshold, false, wordnet_ids(i));%TODO: look inside filterSIFTs
+      tmp =  filterSIFTs(filteredSifts, norm_threshold, false, wordnet_ids(i));
       filtered_sifts = cat(1, filtered_sifts, tmp);
       trainingLabels = [trainingLabels; ((i) * ones(jitter_grid_size^2 * size(tmp, 1), 1))];
-      tmp = filterSIFTs(noisySifts, norm_threshold, false, '');%TODO change norm thresh
+      tmp = filterSIFTs(noisySifts, norm_threshold, false, '');
       noisy_sifts = cat(1, noisy_sifts, tmp);
       testingLabels = [testingLabels; ((i) * ones(size(tmp, 1), 1))];
   end
@@ -88,9 +89,16 @@
   disp('Compute histograms of sifts');
   %vocab(1,:) = 100000*ones(1,128);
   %want jitter on for this bit, to get extra training data out
-  trainHistograms = sparse(computeHistograms(filtered_sifts, vocab, spatial_pyramid_levels));
+  random_order = randperm(size(noisy_sifts, 1))';
+  train_sifts = noisy_sifts(random_order(1:round(size(random_order,1)/2)));
+  test_sifts  = noisy_sifts(random_order(round(size(random_order,1)/2)+1:size(random_order,1)));
+
+  trainingLabels = trainingLabels(random_order(1:round(size(random_order,1)/2)));
+  testingLabels = testingLabels(random_order(round(size(random_order,1)/2)+1:size(random_order,1)));
+
+  trainHistograms = sparse(computeHistograms(train_sifts, vocab, spatial_pyramid_levels));
   jitter_grid_size = 1;%don't need jitter for test data
-  testHistograms = sparse(computeHistograms(noisy_sifts, vocab, spatial_pyramid_levels));
+  testHistograms = sparse(computeHistograms(test_sifts , vocab, spatial_pyramid_levels));
 
   %%
   %visualize sifts on image
@@ -145,18 +153,18 @@
   % attempt to detect the object in the test image
   disp('Running detector...');
   detector_levels = 3;
-  detected_labels = zeros(size(noisy_sifts, 1), sum((1:detector_levels).^2));
-  decision_vals   = zeros(size(noisy_sifts, 1), sum((1:detector_levels).^2), size(wordnet_ids,2));
+  detected_labels = zeros(size(test_sifts, 1), sum((1:detector_levels).^2));
+  decision_vals   = zeros(size(test_sifts, 1), sum((1:detector_levels).^2), size(wordnet_ids,2));
   size(decision_vals)
-  for i=1:size(noisy_sifts, 1)
-    [detected_labels(i, :), decision_vals(i,:,:)] = detectImage(noisy_sifts(i).vldsift, model, detector_levels, vocab); 
+  for i=1:size(test_sifts, 1)
+    [detected_labels(i, :), decision_vals(i,:,:)] = detectImage(test_sifts(i).vldsift, model, detector_levels, vocab); 
   end
   % display number of findings
-  [rows, ~] = find(detected_labels == 1);
-  rows = unique(rows);
-  ['found ' num2str(size(rows,1)) ' teapots' ...
-  ' of ' num2str(size(find(rows < 1367), 1)) ' true positive']
+  %[rows, ~] = find(detected_labels == 1);
+  %rows = unique(rows);
+  %['found ' num2str(size(rows,1)) ' teapots' ...
+  %' of ' num2str(size(find(rows < 1367), 1)) ' true positive']
 
   % plot first few bounding boxes
-  visualizeBBoxes(noisy_sifts, detected_labels,10, 1);
+  %visualizeBBoxes(test_sifts, detected_labels,10, 1);
 
