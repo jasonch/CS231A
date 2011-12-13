@@ -1,10 +1,13 @@
-function visualizeBBoxes(sifts, detected_labels, num, label)
+function visualizeBBoxes(sifts, detected_labels, decision_vals, num, label)
 
   [rows, ~] = find(detected_labels == label);
   rows = unique(rows);
 
   for i=1:num
-    bbox_index = max(find(detected_labels(rows(i),:) == 1));
+
+    [~, bbox_index] = max(decision_vals(rows(i),:,label))
+    %bbox_index = max(find(detected_labels(rows(i),:) == 1));
+
     if (bbox_index == 1)
       lv = 1;
     elseif (bbox_index <= 5)
