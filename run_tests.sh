@@ -1,11 +1,11 @@
 #!/bin/bash
 
-spatial_levels=(1);
+spatial_levels=(1,2);
 kmeans_clusters=(140);
-norm_threshold=(0);
-jitter_grid_size=(3);
+norm_threshold=(0,4.3);
+num_vocab_images=(1500);
+jitter_grid_size=(3,5);
 jitter_amount=(0.0625);
-spatial_weight_drop=(0.5);
 
 counter=1;
 
@@ -20,6 +20,9 @@ do
 for n in $norm_threshold
 do
 
+# number of images used for vocab
+for v in $num_vocab_images
+
 # jitter grid size
 for js in $jitter_grid_size
 do
@@ -28,14 +31,10 @@ do
 for ja in $jitter_amount 
 do
 
-# spatial weight drop
-for sw in $spatial_weight_drop
-do
   echo "running $counter ...";
-  echo main($lv, $k, $n, $js, $ja, $sw) | matlab -nodisply -nodesktop > output_$lv-$k-$n-$js-$ja-$sw.txt &
+  echo main($k, $lv, $n, $v, $js, $ja) | matlab -nodisply -nodesktop > output_$lv-$k-$n-$js-$ja-$sw.txt &
   echo 'done!';
 
-done
 done
 done
 done
