@@ -14,10 +14,10 @@
   jitter_on = true;
  
   % Parameters (TODO: tune later)
-  %useMeanshift = false; K = 500; % K for kmeans
-  useMeanshift = true;  K = 0.70; % bandwidth for meanshift
+  useMeanshift = false; K = 140; % K for kmeans
+  %useMeanshift = true;  K = 0.70; % bandwidth for meanshift
   
-  norm_threshold = 4.5; % percentage of maximum norm
+  norm_threshold = 4.3; % percentage of maximum norm
   num_vocab_images = 1500;
   spatial_pyramid_levels = 2;
 
@@ -31,6 +31,7 @@
   % Paths to add:
   addPathByPlatform('liblinear-1.8/liblinear-1.8/matlab/');
   addPathByPlatform('normalized_cut/');
+  addPathByPlatform('images/');
   addPathByPlatform('siftmatrixes/'); % location for sift feature matrices
   
    %%
@@ -73,23 +74,31 @@
   
   allSifts = [filtered_sifts; noisy_sifts];
   randomSiftDescs = allSifts(randsample(size(allSifts,1), num_vocab_images));
+  %vocab =   computeVocabularySet(randomSiftDescs, K, useMeanshift);
   vocab =   computeVocabularySet(randomSiftDescs, K, useMeanshift);
   %load('vocabPoint50WindowSize.mat');
  
   %%
   disp('Compute histograms of sifts');
-  vocab(1,:) = 100000*ones(1,128);
+  %vocab(1,:) = 100000*ones(1,128);
   %want jitter on for this bit, to get extra training data out
   trainHistograms = sparse(computeHistograms(filtered_sifts, vocab, spatial_pyramid_levels));
   jitter_grid_size = 1;%don't need jitter for test data
   testHistograms = sparse(computeHistograms(noisy_sifts, vocab, spatial_pyramid_levels));
 
   %%
+  %visualize sifts on image
+  if display_sift
+    displaySifts(trainHistograms);
+    %displaySifts(testHistograms);
+  end
+  
+  %%
   %randomly permute training data:
   [train_data, train_labels] = randomizeTrainingData(trainHistograms, trainingLabels);
 
   % plug into liblinear - train
-  svm_options = ['-e 0.5 -c 100000 -s ' int2str(size(wordnet_ids, 2))];
+  svm_options = ['-e 0.5 -c 10 -s ' int2str(size(wordnet_ids, 2))];
   model = train(train_labels, train_data', svm_options); 
   %model = train([training_labels(1:15)' training_labels(1:15)' training_labels(1:15)']' , [training_data(:, 1:15) training_data(1:15) training_data(1:15)]', '-e 0.1 -v 50 -s 1'); 
   %model = train(repmat(training_labels(1:150), 1, 1), repmat(training_data(:,1:150)', 1, 1), '-e 0.1 -v 30 -s 1');

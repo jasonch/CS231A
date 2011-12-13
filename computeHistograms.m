@@ -2,7 +2,7 @@
 % k x n matrix, where k is the number of vocabulary and n is the number of images
 
 function histogram = computeHistograms(sifts, vocabulary, levels)
-  global display_sift;
+
   global jitter_grid_size;
   
   histogram = zeros(size(vocabulary,1)*sum(4.^(0:levels-1)), jitter_grid_size^2 * size(sifts, 1));
@@ -12,25 +12,7 @@ function histogram = computeHistograms(sifts, vocabulary, levels)
     % [histogram(:,i), sift_to_word] = computeBoWHistogram(sifts(i).vldsift.desc, vocabulary);
     hist_idx_range = ((i-1) * jitter_grid_size^2 + 1) : (i*jitter_grid_size^2);
     histogram(:,hist_idx_range) = spatialHistogramWrapper(sifts(i).vldsift, vocabulary, levels);
-    i
-    if (display_sift && i < 4)
-      filepath = ['images\' sifts(i).ID '.JPEG'];
-      try 
-          img = imread(filepath);
-          [Inr, Inc, nb] = size(img);
-          figure; imagesc(img); hold on;
-          plot((sifts(i).vldsift.x' * Inc), (sifts(i).vldsift.y' * Inr), 'none.dr');
-          features = [];
-          features = [features (sifts(i).vldsift.x' * Inc)];
-          features = [features (sifts(i).vldsift.y' * Inr)];
-          features = [features ones(size(sifts(i).vldsift.x, 2),1)];%2.0.^(-1.0 * sifts(i).vldsift.scale(1:1000)')];%sifts(i).vldsift.scale(1:10)'];
-          plotsiftdescriptor(sifts(i).vldsift.desc, features');
-          hold off;
-    
-      catch e
-        disp('image read didnt work');
-      end
-    end    
+    i   
   end
 end
 

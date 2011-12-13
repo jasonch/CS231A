@@ -21,9 +21,11 @@ function vocabulary = computeVocabularySet(sifts, k, useMeanshift)
       [vocabulary, ~, ~] = MeanShiftCluster(siftMatrix', k, false);
       vocabulary = vocabulary';
   else
-      [~, vocabulary] = kmeans(siftMatrix, k, 'emptyaction', 'drop');
+      opts =statset('Display','iter', 'MaxIter', 110);%switch iter to final
+      [~, vocabulary] = kmeans(siftMatrix, k, 'emptyaction', 'drop',...
+                               'options', opts);
       % remove dropped clusters
-      vocabulary = vocabulary(~isnan(vocabulary(:,1)));
+      %vocabulary = vocabulary(~isnan(vocabulary(:,1)));
   end
 
   % normalize the centroids 
