@@ -29,8 +29,9 @@ function visualizeBBoxes(sifts, detected_labels, num, label)
     img=imread(['images/' sifts(rows(i)).ID '.JPEG']);
     figure; imagesc(img); hold on;
     [Inr, Inc, nb] = size(img);
-    plot(bbox_x * Inc, bbox_y * Inr, 'b+', linewidth, 5);
-
+    plot(bbox_x * Inc, bbox_y * Inr, '--b', 'linewidth', 5);
+    pause;
+    close;
   end
-
+  close all;
 end

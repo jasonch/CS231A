@@ -62,10 +62,10 @@
       [filteredSifts, noisySifts] = cleanImagesFilter(wordnet_id, image_vldsift);
       tmp =  filterSIFTs(filteredSifts, norm_threshold, false, wordnet_ids(i));%TODO: look inside filterSIFTs
       filtered_sifts = cat(1, filtered_sifts, tmp);
-      trainingLabels = [trainingLabels; ((i-1) * ones(jitter_grid_size^2 * size(tmp, 1), 1))];
+      trainingLabels = [trainingLabels; ((i) * ones(jitter_grid_size^2 * size(tmp, 1), 1))];
       tmp = filterSIFTs(noisySifts, norm_threshold, false, '');%TODO change norm thresh
       noisy_sifts = cat(1, noisy_sifts, tmp);
-      testingLabels = [testingLabels; ((i-1) * ones(size(tmp, 1), 1))];
+      testingLabels = [testingLabels; ((i) * ones(size(tmp, 1), 1))];
   end
   
   %%
