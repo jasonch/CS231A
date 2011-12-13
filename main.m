@@ -9,7 +9,7 @@
   jitter_amount = 0.0625;
   sp_weight_drop = 0.5; 
   jitter_grid_size = 3;
-  display_sift = false;  
+  display_sift = false;
   hist_threshold = 0.8;
   jitter_on = true;
  
@@ -33,6 +33,7 @@
   addPathByPlatform('normalized_cut/');
   addPathByPlatform('images/');
   addPathByPlatform('siftmatrixes/'); % location for sift feature matrices
+  addPathByPlatform('/tmp/'); % location for sift feature matrices
   
    %%
   % segment images
@@ -56,10 +57,10 @@
       [filteredSifts, noisySifts] = cleanImagesFilter(wordnet_id, image_vldsift);
       tmp =  filterSIFTs(filteredSifts, norm_threshold, false, wordnet_ids(i));%TODO: look inside filterSIFTs
       filtered_sifts = cat(1, filtered_sifts, tmp);
-      trainingLabels = [trainingLabels; ((i-1) * ones(jitter_grid_size^2 * size(tmp, 1), 1))];
+      trainingLabels = [trainingLabels; ((i) * ones(jitter_grid_size^2 * size(tmp, 1), 1))];
       tmp = filterSIFTs(noisySifts, norm_threshold, false, '');%TODO change norm thresh
       noisy_sifts = cat(1, noisy_sifts, tmp);
-      testingLabels = [testingLabels; ((i-1) * ones(size(tmp, 1), 1))];
+      testingLabels = [testingLabels; ((i) * ones(size(tmp, 1), 1))];
   end
   
   %%
@@ -143,5 +144,5 @@
   ' of ' num2str(size(find(rows < 1367), 1)) ' true positive']
 
   % plot first few bounding boxes
-  visualizeBBoxes(noisy_sifts, detected_labels,10, 1);
+  %visualizeBBoxes(noisy_sifts, detected_labels,10, 1);
 
