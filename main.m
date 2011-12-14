@@ -11,7 +11,7 @@ function accuracy = main(num_clusters, pyramid_levels, min_sift_norm, num_vocab_
   global sp_weight_drop; %smaller sp regions should be weighted less
   global jitter_amount; %proportion of jitter amount to the grid it's jittering, see computeHistogram
   global kmeans_max_itrs;
-  kmeans_max_itrs = 90;
+  kmeans_max_itrs = 80;
   jitter_amount = jitter_amt;%0.0625;
   sp_weight_drop = 0.5; 
   jitter_grid_size = jitter_size;
@@ -30,13 +30,13 @@ function accuracy = main(num_clusters, pyramid_levels, min_sift_norm, num_vocab_
 
   %TODO: pick good synsets: teapot, revolver, scissors, chain/toyshop
   % Synset ids
-  %wordnet_ids = {'n04398044', 'n04086273', 'n04148054', 'n04462240', 'n03376595'};  
+  wordnet_ids = {'n04398044', 'n04086273', 'n04148054', 'n04462240', 'n03376595'};  
   %wordnet_ids = {'n04398044', 'n02992211', 'n03255030', 'n03376595',...
   %               'n04086273', 'n04141076', 'n04148054', 'n04462240'};
   %               teapot       cello        dumbbell     chair 
   %wordnet_ids = {'n04398044', 'n02992211', 'n03376595'};
   %               teapot       cello         chair 
-  wordnet_ids = {'n04398044', 'n03376595'}
+  %wordnet_ids = {'n04398044', 'n03376595'}
   %                teapot       chair
   % teapot - n04398044; cello - n02992211; dumbbell - n03255030; chair - n03376595;
   % revolver - n04086273; saxophone - n04141076; scissors - n04148054; toyshop: n04462240
@@ -91,12 +91,12 @@ function accuracy = main(num_clusters, pyramid_levels, min_sift_norm, num_vocab_
   % compute vocabulary set
   disp('Compute vocab set');
   
-  allSifts = [filtered_sifts; noisy_sifts];
-  randomSiftDescs = allSifts(randsample(size(allSifts,1), num_vocab_images));
+  %allSifts = [filtered_sifts; noisy_sifts];
+  %randomSiftDescs = allSifts(randsample(size(allSifts,1), num_vocab_images));
   %vocab =   computeVocabularySet(randomSiftDescs, K, useMeanshift);
-  vocab =   computeVocabularySet(randomSiftDescs, K, useMeanshift);
-  %load('vocabPoint50WindowSize.mat');
- 
+  %vocab =   computeVocabularySet(randomSiftDescs, K, useMeanshift);
+  load('vocab-kmeans-300.mat');
+   
   %%
   disp('Compute histograms of sifts');
   %vocab(1,:) = 100000*ones(1,128);
@@ -134,7 +134,7 @@ function accuracy = main(num_clusters, pyramid_levels, min_sift_norm, num_vocab_
   [train_data, train_labels] = randomizeTrainingData(trainHistograms, trainingLabels);
 
   % plug into liblinear - train
-  svm_options = ['-e 0.5 -c 10 -s ' int2str(size(wordnet_ids, 2))];
+  svm_options = ['-e 0.5 -c 10 -s 4'];
   model = train(train_labels, train_data', svm_options); 
   %model = train([training_labels(1:15)' training_labels(1:15)' training_labels(1:15)']' , [training_data(:, 1:15) training_data(1:15) training_data(1:15)]', '-e 0.1 -v 50 -s 1'); 
   %model = train(repmat(training_labels(1:150), 1, 1), repmat(training_data(:,1:150)', 1, 1), '-e 0.1 -v 30 -s 1');
