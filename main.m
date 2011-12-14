@@ -1,3 +1,5 @@
+function accuracy = main(num_clusters, pyramid_levels, min_sift_norm, num_vocab_imgs, jitter_size, jitter_amt)
+
 % this file descirbes a detector using BoW histograms with SIFT features....
    %% constants
    % CHECK ALL THESE BEFORE RUNNING!!
@@ -10,30 +12,34 @@
   global jitter_amount; %proportion of jitter amount to the grid it's jittering, see computeHistogram
   global kmeans_max_itrs;
   kmeans_max_itrs = 90;
-  jitter_amount = 0.0625;
+  jitter_amount = jitter_amt;%0.0625;
   sp_weight_drop = 0.5; 
-  jitter_grid_size = 3;
+  jitter_grid_size = jitter_size;
   display_sift = false;  
   display_clusters = false;
   display_histograms = false;
   hist_threshold = 0.8;
-  jitter_on = true;
  
   % Parameters (TODO: tune later)
-  useMeanshift = false; K = 140; % K for kmeans
+  useMeanshift = false; K = num_clusters;%140; % K for kmeans
   %useMeanshift = true;  K = 0.70; % bandwidth for meanshift
   
-  norm_threshold = 4.3; % percentage of maximum norm
-  num_vocab_images = 1500;
-  spatial_pyramid_levels = 2;
+  norm_threshold = min_sift_norm; 
+  num_vocab_images = num_vocab_imgs;%1500;
+  spatial_pyramid_levels = pyramid_levels;%2;
 
+  %TODO: pick good synsets: teapot, revolver, scissors, chain/toyshop
   % Synset ids
-  wordnet_ids = {'n04398044', 'n02992211', 'n03255030', 'n03376595'};
+  %wordnet_ids = {'n04398044', 'n04086273', 'n04148054', 'n04462240', 'n03376595'};  
+  %wordnet_ids = {'n04398044', 'n02992211', 'n03255030', 'n03376595',...
+  %               'n04086273', 'n04141076', 'n04148054', 'n04462240'};
   %               teapot       cello        dumbbell     chair 
   %wordnet_ids = {'n04398044', 'n02992211', 'n03376595'};
   %               teapot       cello         chair 
-  %wordnet_ids = {'n04398044', 'n03376595'}
+  wordnet_ids = {'n04398044', 'n03376595'}
   %                teapot       chair
+  % teapot - n04398044; cello - n02992211; dumbbell - n03255030; chair - n03376595;
+  % revolver - n04086273; saxophone - n04141076; scissors - n04148054; toyshop: n04462240
   % Paths to add:
   addPathByPlatform('liblinear-1.8/liblinear-1.8/matlab/');
   addPathByPlatform('normalized_cut/');
@@ -63,10 +69,16 @@
       [filteredSifts, noisySifts] = cleanImagesFilter(wordnet_id, image_vldsift);
       tmp =  filterSIFTs(filteredSifts, norm_threshold, false, wordnet_ids(i));
       filtered_sifts = cat(1, filtered_sifts, tmp);
-      trainingLabels = [trainingLabels; ((i) * ones(jitter_grid_size^2 * size(tmp, 1), 1))];
-      tmp = filterSIFTs(noisySifts, norm_threshold, false, '');
+
+      label=i;
+      if (i == 5)
+        label=4;
+      end
+
+      trainingLabels = [trainingLabels; label * ones(jitter_grid_size^2 * size(tmp, 1), 1)];
+      tmp = filterSIFTs(noisySifts, norm_threshold, false, '');%TODO change norm thresh
       noisy_sifts = cat(1, noisy_sifts, tmp);
-      testingLabels = [testingLabels; ((i) * ones(size(tmp, 1), 1))];
+      testingLabels = [testingLabels; label * ones(size(tmp, 1), 1)];
   end
   
   %%
@@ -135,21 +147,21 @@
 
   %%
   disp('Training num labels 0, 1, 2, ..');
-  sum(train_labels == 0)
   sum(train_labels == 1)
   sum(train_labels == 2)
   sum(train_labels == 3)  
+  sum(train_labels == 4)
   disp('Test num labels 0, 1, 2, ..');
-  sum(test_labels == 0)
   sum(test_labels == 1)
   sum(test_labels == 2)
   sum(test_labels == 3)  
+  sum(test_labels == 4)  
   disp('Predicted num labels 0, 1, 2, ..');
-  sum(predicted_label == 0)
   sum(predicted_label == 1)
   sum(predicted_label == 2)  
   sum(predicted_label == 3)   
-  
+  sum(predicted_label == 4)
+%{  
   %% 
   % attempt to detect the object in the test image
   disp('Running detector...');
@@ -168,4 +180,5 @@
 
   % plot first few bounding boxes
   %visualizeBBoxes(test_sifts, detected_labels,10, 1);
-
+%}
+end
