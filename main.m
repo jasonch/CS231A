@@ -90,13 +90,14 @@
   %vocab(1,:) = 100000*ones(1,128);
   %want jitter on for this bit, to get extra training data out
   random_order = randperm(size(noisy_sifts, 1))';
-  train_sifts = noisy_sifts(random_order(1:round(size(random_order,1)/2)));
-  test_sifts  = noisy_sifts(random_order(round(size(random_order,1)/2)+1:size(random_order,1)));
 
-  trainingLabels = trainingLabels(random_order(1:round(size(random_order,1)/2)));
-  testingLabels = testingLabels(random_order(round(size(random_order,1)/2)+1:size(random_order,1)));
 
+  trainingLabels = trainingLabels(random_order(1:round(size(random_order)/2)));
+  train_sifts = noisy_sifts(random_order(1:round(size(random_order)/2)));
   trainHistograms = sparse(computeHistograms(train_sifts, vocab, spatial_pyramid_levels));
+
+  testingLabels = testingLabels(random_order( (round(size(random_order)/2)+1) :size(random_order,1)));
+  test_sifts    = noisy_sifts  (random_order( (round(size(random_order)/2)+1) :size(random_order,1)));
   jitter_grid_size = 1;%don't need jitter for test data
   testHistograms = sparse(computeHistograms(test_sifts , vocab, spatial_pyramid_levels));
 
